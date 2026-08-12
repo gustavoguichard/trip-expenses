@@ -8,6 +8,7 @@ import {
   findTrip,
   isActive,
   type Member,
+  newId,
   now,
   replaceTrip,
   type Trip,
@@ -31,7 +32,7 @@ const createTrip = applySchema(
 )(({ name, emoji, currency, members }, { document }) => {
   const timestamp = now()
   const trip: Trip = {
-    id: crypto.randomUUID(),
+    id: newId(),
     name,
     emoji,
     currency,
@@ -214,7 +215,7 @@ function newMember(
   timestamp: string
 ): Member {
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     name,
     emoji,
     deviceIds: [],

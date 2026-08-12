@@ -8,6 +8,7 @@ import {
   documentContextSchema,
   type Expense,
   findTrip,
+  newId,
   now,
   replaceTrip,
   shareSchema,
@@ -98,7 +99,7 @@ const addExpense = applySchema(
 
   const timestamp = now()
   const expense: Expense = {
-    id: crypto.randomUUID(),
+    id: newId(),
     ...input,
     kind: input.categoryId === settlementCategory.id ? 'settlement' : 'expense',
     updatedAt: timestamp,

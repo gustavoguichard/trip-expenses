@@ -3,6 +3,7 @@ import { ref } from 'remix/ui'
 import {
   documentSchema,
   emptyDocument,
+  newId,
   type TripDocument,
 } from '../business/store.common.ts'
 import { makeLocalStore } from '../framework/local-store.ts'
@@ -20,7 +21,7 @@ function deviceId() {
   const key = 'trip-expenses:device'
   const existing = localStorage.getItem(key)
   if (existing) return existing
-  const id = crypto.randomUUID()
+  const id = newId()
   localStorage.setItem(key, id)
   return id
 }
