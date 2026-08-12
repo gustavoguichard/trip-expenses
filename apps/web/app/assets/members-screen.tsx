@@ -1,5 +1,5 @@
 import type { Handle } from 'remix/ui'
-import { clientEntry, navigate, on } from 'remix/ui'
+import { clientEntry, navigate, on, ref } from 'remix/ui'
 
 import { totalsByMember } from '../business/balances.common.ts'
 import { activeMembers, findTrip, type Trip } from '../business/store.common.ts'
@@ -63,6 +63,7 @@ export const MembersScreen = clientEntry(
     async function removeTrip(trip: Trip) {
       const result = await mutateDocument(deleteTrip, { tripId: trip.id })
       if (result.error !== null) {
+        confirmingDelete = false
         error = result.error
         handle.update()
         return
@@ -208,44 +209,67 @@ export const MembersScreen = clientEntry(
             <ErrorNote message={error} />
           </div>
 
-          <div class="mt-12 border-t border-line pt-6">
-            {confirmingDelete ? (
-              <div class="flex flex-wrap items-center gap-3">
-                <p class="mono-caption flex-1 text-muted">
-                  Excluir “{trip.name}” deste aparelho? Amigos que sincronizaram
-                  continuam com a cópia.
-                </p>
-                <button
-                  type="button"
-                  class={buttonDanger}
-                  mix={on('click', () => removeTrip(trip))}
-                >
-                  Sim, excluir
-                </button>
-                <button
-                  type="button"
-                  class={buttonGhost}
-                  mix={on('click', () => {
-                    confirmingDelete = false
-                    handle.update()
-                  })}
-                >
-                  Manter
-                </button>
-              </div>
-            ) : (
+          <div class="mt-12">
+            <SectionLabel>Zona de perigo</SectionLabel>
+            <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-red/25 bg-panel px-4 py-3.5">
+              <p class="mono-caption text-muted">
+                Remove a viagem só deste aparelho.
+              </p>
               <button
                 type="button"
-                class="mono-label cursor-pointer text-faint transition-colors hover:text-red"
+                class={buttonDanger}
                 mix={on('click', () => {
                   confirmingDelete = true
                   handle.update()
                 })}
               >
-                Excluir esta viagem
+                Excluir viagem
               </button>
-            )}
+            </div>
           </div>
+
+          {confirmingDelete ? (
+            <dialog
+              class="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-line-bright bg-panel p-6 text-ink backdrop:bg-canvas/70 backdrop:backdrop-blur-sm"
+              mix={[
+                ref((node) => {
+                  const dialog = node as HTMLDialogElement
+                  if (!dialog.open) dialog.showModal()
+                }),
+                on('close', () => {
+                  confirmingDelete = false
+                  handle.update()
+                }),
+              ]}
+            >
+              <h2 class="text-[19px] font-bold tracking-tight">
+                Excluir “{trip.name}”?
+              </h2>
+              <p class="mono-caption mt-3 text-muted">
+                A viagem some só deste aparelho. Amigos que sincronizaram
+                continuam com a cópia deles — e podem te convidar de volta.
+              </p>
+              <div class="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  class={`${buttonGhost} flex-1`}
+                  mix={on('click', () => {
+                    confirmingDelete = false
+                    handle.update()
+                  })}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  class={`${buttonDanger} flex-1`}
+                  mix={on('click', () => removeTrip(trip))}
+                >
+                  Excluir viagem
+                </button>
+              </div>
+            </dialog>
+          ) : null}
         </div>
       )
     }
