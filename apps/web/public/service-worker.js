@@ -1,4 +1,5 @@
-const version = 'v1'
+const buildVersion = '__BUILD_VERSION__'
+const version = buildVersion.startsWith('__') ? 'dev' : buildVersion
 const cacheName = `trip-expenses-${version}`
 
 const precachedPaths = [
@@ -10,7 +11,7 @@ const precachedPaths = [
   '/manifest.webmanifest',
 ]
 
-const stablePathPrefixes = ['/assets/', '/fonts/', '/styles.css']
+const revalidatedPathPrefixes = ['/assets/', '/styles.css']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -60,6 +61,18 @@ async function cacheFirst(request) {
   return response
 }
 
+async function staleWhileRevalidate(event) {
+  const cache = await caches.open(cacheName)
+  const cached = await cache.match(event.request)
+  const refresh = fetch(event.request).then((response) => {
+    if (response.ok) cache.put(event.request, response.clone())
+    return response
+  })
+  if (!cached) return refresh
+  event.waitUntil(refresh.catch(() => {}))
+  return cached
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event
   if (request.method !== 'GET') return
@@ -72,7 +85,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(networkFirst(request))
     return
   }
-  if (stablePathPrefixes.some((prefix) => url.pathname.startsWith(prefix))) {
+  if (url.pathname.startsWith('/fonts/')) {
     event.respondWith(cacheFirst(request))
+    return
+  }
+  if (
+    revalidatedPathPrefixes.some((prefix) => url.pathname.startsWith(prefix))
+  ) {
+    event.respondWith(staleWhileRevalidate(event))
   }
 })

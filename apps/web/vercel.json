@@ -1,11 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm run css:build",
+  "buildCommand": "pnpm run css:build && node scripts/stamp-service-worker.mjs",
   "outputDirectory": "public",
   "functions": {
     "api/index.mjs": {
       "includeFiles": "{app/**,public/**,tsconfig.json,package.json,../../node_modules/.pnpm/{remix@,@remix-run+,zod@,qr@,uqr@,composable-functions@,oxc-,@oxc-,lightningcss,@emnapi+}*/**}"
     }
   },
+  "headers": [
+    {
+      "source": "/service-worker.js",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }

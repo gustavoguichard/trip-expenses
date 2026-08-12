@@ -2,7 +2,16 @@ import type { Handle, RemixNode } from 'remix/ui'
 
 import { routes } from '../routes.ts'
 
-const serviceWorkerRegistration = `if ('serviceWorker' in navigator && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') navigator.serviceWorker.register('/service-worker.js')`
+const serviceWorkerRegistration = `if ('serviceWorker' in navigator && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
+  const hadController = Boolean(navigator.serviceWorker.controller)
+  let reloading = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return
+    reloading = true
+    location.reload()
+  })
+}`
 
 export type DocumentProps = {
   children?: RemixNode
