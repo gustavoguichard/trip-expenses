@@ -1,7 +1,7 @@
 {
   "name": "Trip Expenses",
-  "short_name": "Trips",
-  "description": "Split trip costs with friends — free, forever, no accounts.",
+  "short_name": "Viagens",
+  "description": "Divida os custos da viagem com os amigos — grátis, para sempre, sem contas.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0B0A08",

@@ -15,7 +15,7 @@ export function Document(handle: Handle<DocumentProps>) {
     const { children, title = 'Trip Expenses', description } = handle.props
 
     return (
-      <html lang="en" class="[color-scheme:dark]">
+      <html lang="pt-BR" class="[color-scheme:dark]">
         <head>
           <meta charSet="utf-8" />
           <meta

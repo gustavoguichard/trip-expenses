@@ -18,7 +18,7 @@ export function AppShell(handle: Handle<AppShellProps>) {
             <a
               href={routes.home.href()}
               class="rounded-md outline-amber transition-opacity hover:opacity-80"
-              aria-label="All trips"
+              aria-label="Todas as viagens"
             >
               <Wordmark />
             </a>
@@ -38,7 +38,7 @@ export function AppShell(handle: Handle<AppShellProps>) {
                 <path d="M1.5 5 V1.5 H5 M11 1.5 H14.5 V5 M14.5 11 V14.5 H11 M5 14.5 H1.5 V11" />
                 <path d="M4.5 8 H11.5" stroke-linecap="round" />
               </svg>
-              Scan
+              Escanear
             </a>
           </div>
         </header>

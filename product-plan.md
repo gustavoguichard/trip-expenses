@@ -12,7 +12,7 @@ A free trip expense splitter anyone can use, forever, without accounts, servers,
 - **Inviting = QR + identity.** The inviter picks which trip member the other person is (including picking themselves, to sync their own second device). The QR carries the whole trip plus that member id; the scanner's device claims the member on import. Re-scanning any member's code later re-syncs; syncing back is scanning in the other direction.
 - **Merges are entity-level last-write-wins.** Every trip, member, and expense carries `updatedAt`; deletions are `deletedAt` tombstones so a deletion propagates instead of resurrecting. Device claims (`deviceIds`) union rather than fight.
 - **Charts tab per trip.** Stat tiles (total, per-day, days, biggest day), category bars, daily spending bars, and paid-vs-share per person.
-- **English UI, multi-currency.** One currency per trip, formatted with `Intl.NumberFormat`; amounts stored as integer cents; both `12.50` and `12,50` accepted on input.
+- **Portuguese-first UI (pt-BR), multi-currency.** All copy, dates, and error messages speak Brazilian Portuguese; code identifiers and routes stay in English. One currency per trip, formatted with `Intl.NumberFormat` in the `pt-BR` locale; amounts stored as integer cents; both `12.50` and `12,50` accepted on input.
 - **Hosting: Vercel** (or any Node host via `pnpm start`). No paid services anywhere in the stack.
 - **Installable PWA with an offline shell.** Manifest + icons make it a home-screen app; a service worker caches the shell and visited pages so the app works offline on the road (registration skips localhost).
 

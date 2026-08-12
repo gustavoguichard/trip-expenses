@@ -8,10 +8,10 @@ import { formatCents } from './money.ts'
 type TabKey = 'expenses' | 'balances' | 'charts' | 'people'
 
 const tabs: Array<{ key: TabKey; label: string }> = [
-  { key: 'expenses', label: 'Expenses' },
-  { key: 'balances', label: 'Balances' },
-  { key: 'charts', label: 'Charts' },
-  { key: 'people', label: 'People' },
+  { key: 'expenses', label: 'Despesas' },
+  { key: 'balances', label: 'Saldos' },
+  { key: 'charts', label: 'Gráficos' },
+  { key: 'people', label: 'Pessoas' },
 ]
 
 function tabHref(tab: TabKey, tripId: string) {
@@ -32,7 +32,7 @@ function TripChrome(handle: Handle<{ trip: Trip; active: TabKey }>) {
           href={routes.home.href()}
           class="mono-label mb-5 inline-flex items-center gap-1.5 text-faint transition-colors hover:text-ink"
         >
-          <span aria-hidden="true">←</span> Trips
+          <span aria-hidden="true">←</span> Viagens
         </a>
         <div class="flex items-center gap-4">
           <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line-bright bg-panel text-[26px]">
@@ -47,12 +47,12 @@ function TripChrome(handle: Handle<{ trip: Trip; active: TabKey }>) {
                 {formatCents(tripTotal(trip), trip.currency)}
               </span>
               {' · '}
-              {members.length} {members.length === 1 ? 'person' : 'people'}
+              {members.length} {members.length === 1 ? 'pessoa' : 'pessoas'}
             </p>
           </div>
           <a
             href={routes.trips.invite.href({ tripId: trip.id })}
-            aria-label="Invite someone"
+            aria-label="Convidar alguém"
             class="flex h-11 w-11 items-center justify-center rounded-lg border border-line-bright text-muted transition-colors hover:border-amber hover:text-ink"
           >
             <svg
@@ -67,7 +67,7 @@ function TripChrome(handle: Handle<{ trip: Trip; active: TabKey }>) {
               <path d="M1.5 5 V1.5 H5 M11 1.5 H14.5 V5 M14.5 11 V14.5 H11 M5 14.5 H1.5 V11" />
               <rect x="5.4" y="5.4" width="5.2" height="5.2" rx="1" />
             </svg>
-            <span class="sr-only">Invite someone</span>
+            <span class="sr-only">Convidar alguém</span>
           </a>
         </div>
         <nav class="mt-5 grid grid-cols-4 gap-1 rounded-xl border border-line bg-panel p-1">
@@ -94,16 +94,18 @@ function TripChrome(handle: Handle<{ trip: Trip; active: TabKey }>) {
 function TripMissing() {
   return () => (
     <div class="rounded-2xl border border-line bg-panel px-6 py-14 text-center">
-      <p class="text-[17px] font-semibold">This trip is not on this device</p>
+      <p class="text-[17px] font-semibold">
+        Esta viagem não está neste aparelho
+      </p>
       <p class="mono-caption mx-auto mt-2 max-w-sm text-muted">
-        Ask a friend on the trip to show you their invite code, then scan it
-        from the home screen.
+        Peça para alguém da viagem mostrar o código de convite e escaneie a
+        partir da tela inicial.
       </p>
       <a
         href={routes.home.href()}
         class="mono-label mt-6 inline-flex rounded-lg border border-line-bright px-4 py-3 text-muted transition-colors hover:border-amber hover:text-ink"
       >
-        Back to trips
+        Voltar às viagens
       </a>
     </div>
   )

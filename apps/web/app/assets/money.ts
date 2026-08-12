@@ -3,7 +3,7 @@ const formatters = new Map<string, Intl.NumberFormat>()
 function formatterFor(currency: string) {
   let formatter = formatters.get(currency)
   if (!formatter) {
-    formatter = new Intl.NumberFormat('en', {
+    formatter = new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency,
     })
@@ -17,7 +17,7 @@ function formatCents(amountCents: number, currency: string) {
 }
 
 function formatDay(date: string) {
-  return new Date(`${date}T12:00:00Z`).toLocaleDateString('en', {
+  return new Date(`${date}T12:00:00Z`).toLocaleDateString('pt-BR', {
     weekday: 'short',
     month: 'short',
     day: 'numeric',

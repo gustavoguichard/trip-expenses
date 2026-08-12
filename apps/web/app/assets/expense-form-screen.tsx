@@ -156,7 +156,7 @@ export const ExpenseFormScreen = clientEntry(
       const state = form
       const amountCents = parseAmount(state.amountText)
       if (amountCents === null) {
-        error = 'Enter an amount greater than zero.'
+        error = 'Informe um valor maior que zero.'
         handle.update()
         return
       }
@@ -255,9 +255,9 @@ export const ExpenseFormScreen = clientEntry(
           <h1 class="mb-6 text-[22px] font-bold tracking-tight">
             {editing
               ? settlement
-                ? 'Edit payment'
-                : 'Edit expense'
-              : 'Add expense'}
+                ? 'Editar pagamento'
+                : 'Editar despesa'
+              : 'Adicionar despesa'}
           </h1>
 
           <form
@@ -268,10 +268,10 @@ export const ExpenseFormScreen = clientEntry(
             })}
           >
             <div>
-              <SectionLabel>What was it?</SectionLabel>
+              <SectionLabel>O que foi?</SectionLabel>
               <input
                 class={inputClass}
-                placeholder="Dinner at the river"
+                placeholder="Jantar na beira do rio"
                 defaultValue={state.description}
                 mix={on('input', (event) => {
                   state.description = (
@@ -306,7 +306,7 @@ export const ExpenseFormScreen = clientEntry(
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <SectionLabel>Amount ({trip.currency})</SectionLabel>
+                <SectionLabel>Valor ({trip.currency})</SectionLabel>
                 <input
                   class={`${inputClass} tabular`}
                   placeholder="0.00"
@@ -321,7 +321,7 @@ export const ExpenseFormScreen = clientEntry(
                 />
               </div>
               <div>
-                <SectionLabel>When</SectionLabel>
+                <SectionLabel>Quando</SectionLabel>
                 <input
                   type="date"
                   class={inputClass}
@@ -334,7 +334,7 @@ export const ExpenseFormScreen = clientEntry(
             </div>
 
             <div>
-              <SectionLabel>Paid by</SectionLabel>
+              <SectionLabel>Quem pagou</SectionLabel>
               <div class="flex flex-wrap gap-2">
                 {members.map((member) => (
                   <MemberChip
@@ -353,7 +353,7 @@ export const ExpenseFormScreen = clientEntry(
             {settlement ? null : (
               <div>
                 <div class="mb-2.5 flex items-center justify-between">
-                  <p class="mono-label text-faint">Split between</p>
+                  <p class="mono-label text-faint">Dividir entre</p>
                   <div class="flex rounded-lg border border-line bg-panel p-0.5">
                     {(['equally', 'custom'] as const).map((mode) => (
                       <button
@@ -369,7 +369,7 @@ export const ExpenseFormScreen = clientEntry(
                           handle.update()
                         })}
                       >
-                        {mode === 'equally' ? 'Equally' : 'Custom'}
+                        {mode === 'equally' ? 'Igualmente' : 'Personalizado'}
                       </button>
                     ))}
                   </div>
@@ -393,7 +393,7 @@ export const ExpenseFormScreen = clientEntry(
                   ))}
                 </div>
                 <p class="mono-caption mt-2 text-faint">
-                  Leave the payer out to make it a loan.
+                  Deixe quem pagou de fora para virar um empréstimo.
                 </p>
 
                 {state.splitMode === 'equally' && preview ? (
@@ -452,10 +452,10 @@ export const ExpenseFormScreen = clientEntry(
                         }`}
                       >
                         {customTotal === amountCents
-                          ? `All ${formatCents(amountCents, trip.currency)} assigned`
+                          ? `Tudo dividido — ${formatCents(amountCents, trip.currency)}`
                           : customTotal < amountCents
-                            ? `${formatCents(amountCents - customTotal, trip.currency)} remaining`
-                            : `${formatCents(customTotal - amountCents, trip.currency)} over`}
+                            ? `Faltam ${formatCents(amountCents - customTotal, trip.currency)}`
+                            : `${formatCents(customTotal - amountCents, trip.currency)} a mais`}
                       </p>
                     ) : null}
                   </div>
@@ -471,7 +471,11 @@ export const ExpenseFormScreen = clientEntry(
                 class={`${buttonPrimary} w-full`}
                 disabled={saving}
               >
-                {saving ? 'Saving…' : editing ? 'Save changes' : 'Add expense'}
+                {saving
+                  ? 'Salvando…'
+                  : editing
+                    ? 'Salvar alterações'
+                    : 'Adicionar despesa'}
               </button>
               {editing ? (
                 <button
@@ -480,7 +484,7 @@ export const ExpenseFormScreen = clientEntry(
                   disabled={saving}
                   mix={on('click', () => remove(trip))}
                 >
-                  Delete {settlement ? 'payment' : 'expense'}
+                  Excluir {settlement ? 'pagamento' : 'despesa'}
                 </button>
               ) : null}
             </div>

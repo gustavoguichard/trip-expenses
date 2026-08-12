@@ -14,7 +14,7 @@ export default createController(routes.trips, {
   actions: {
     new(context) {
       return context.render(
-        <AppShell title="New trip — Trip Expenses">
+        <AppShell title="Nova viagem — Trip Expenses">
           <TripNewScreen />
         </AppShell>
       )
@@ -28,14 +28,14 @@ export default createController(routes.trips, {
     },
     newExpense(context) {
       return context.render(
-        <AppShell title="Add expense — Trip Expenses">
+        <AppShell title="Adicionar despesa — Trip Expenses">
           <ExpenseFormScreen tripId={context.params.tripId} />
         </AppShell>
       )
     },
     expense(context) {
       return context.render(
-        <AppShell title="Edit expense — Trip Expenses">
+        <AppShell title="Editar despesa — Trip Expenses">
           <ExpenseFormScreen
             tripId={context.params.tripId}
             expenseId={context.params.expenseId}
@@ -45,28 +45,28 @@ export default createController(routes.trips, {
     },
     balances(context) {
       return context.render(
-        <AppShell title="Balances — Trip Expenses">
+        <AppShell title="Saldos — Trip Expenses">
           <BalancesScreen tripId={context.params.tripId} />
         </AppShell>
       )
     },
     charts(context) {
       return context.render(
-        <AppShell title="Charts — Trip Expenses">
+        <AppShell title="Gráficos — Trip Expenses">
           <ChartsScreen tripId={context.params.tripId} />
         </AppShell>
       )
     },
     members(context) {
       return context.render(
-        <AppShell title="People — Trip Expenses">
+        <AppShell title="Pessoas — Trip Expenses">
           <MembersScreen tripId={context.params.tripId} />
         </AppShell>
       )
     },
     invite(context) {
       return context.render(
-        <AppShell title="Invite — Trip Expenses">
+        <AppShell title="Convite — Trip Expenses">
           <InviteScreen tripId={context.params.tripId} />
         </AppShell>
       )

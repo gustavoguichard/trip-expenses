@@ -60,7 +60,7 @@ const updateTrip = applySchema(
   documentContextSchema
 )(({ tripId, ...fields }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   return {
     document: replaceTrip(document, {
@@ -80,7 +80,7 @@ const deleteTrip = applySchema(
   documentContextSchema
 )(({ tripId }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const timestamp = now()
   return {
@@ -103,7 +103,7 @@ const addMember = applySchema(
   documentContextSchema
 )(({ tripId, name, emoji }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const member = newMember({ name, emoji }, now())
   return {
@@ -128,12 +128,12 @@ const updateMember = applySchema(
   documentContextSchema
 )(({ tripId, memberId, ...fields }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const member = activeMembers(trip).find(
     (candidate) => candidate.id === memberId
   )
-  if (!member) throw new Error('Member not found')
+  if (!member) throw new Error('Pessoa não encontrada')
 
   const updated: Member = {
     ...member,
@@ -155,12 +155,12 @@ const removeMember = applySchema(
   documentContextSchema
 )(({ tripId, memberId }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const member = activeMembers(trip).find(
     (candidate) => candidate.id === memberId
   )
-  if (!member) throw new Error('Member not found')
+  if (!member) throw new Error('Pessoa não encontrada')
 
   const involved = activeExpenses(trip).some(
     (expense) =>
@@ -169,7 +169,7 @@ const removeMember = applySchema(
   )
   if (involved) {
     throw new Error(
-      'This person has expenses on the trip and cannot be removed'
+      'Essa pessoa tem despesas na viagem e não pode ser removida'
     )
   }
 
@@ -194,7 +194,7 @@ const claimMember = applySchema(
   documentContextSchema
 )(({ tripId, memberId, deviceId }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const members = trip.members.map((member) => {
     if (!isActive(member)) return member

@@ -62,10 +62,12 @@ export const ChartsScreen = clientEntry(
             <TripChrome trip={trip} active="charts" />
             <div class="rounded-2xl border border-line bg-panel px-6 py-14 text-center">
               <p class="text-[24px]">📊</p>
-              <p class="mt-3 text-[17px] font-semibold">Nothing to chart yet</p>
+              <p class="mt-3 text-[17px] font-semibold">
+                Nada para mostrar ainda
+              </p>
               <p class="mono-caption mx-auto mt-2 max-w-xs text-muted">
-                Add a few expenses and this tab turns into the trip's money
-                story.
+                Adicione algumas despesas e esta aba vira a história do dinheiro
+                da viagem.
               </p>
             </div>
           </div>
@@ -88,20 +90,20 @@ export const ChartsScreen = clientEntry(
           <TripChrome trip={trip} active="charts" />
 
           <div class="grid grid-cols-2 gap-3">
-            <StatTile label="Total spent" value={money(total)} />
+            <StatTile label="Total gasto" value={money(total)} />
             <StatTile
-              label="Per day"
+              label="Por dia"
               value={money(Math.round(total / byDay.length))}
             />
-            <StatTile label="Days with spending" value={String(byDay.length)} />
+            <StatTile label="Dias com gastos" value={String(byDay.length)} />
             <StatTile
-              label="Biggest day"
+              label="Maior dia"
               value={`${formatDay(biggestDay.date)}`}
             />
           </div>
 
           <section class="mt-8">
-            <SectionLabel>By category</SectionLabel>
+            <SectionLabel>Por categoria</SectionLabel>
             <div class="space-y-2.5 rounded-2xl border border-line bg-panel px-4 py-4">
               {byCategory.map((entry) => {
                 const category = findCategory(entry.categoryId)
@@ -131,18 +133,18 @@ export const ChartsScreen = clientEntry(
 
           <section class="mt-8">
             <div class="mb-2.5 flex items-baseline justify-between">
-              <p class="mono-label text-faint">Spending by day</p>
+              <p class="mono-label text-faint">Gastos por dia</p>
               <p class="mono-caption tabular text-muted">
                 {selected
                   ? `${formatDay(selected.date)} · ${money(selected.amountCents)}`
-                  : 'tap a bar'}
+                  : 'toque numa barra'}
               </p>
             </div>
             <div class="rounded-2xl border border-line bg-panel px-4 pt-5 pb-3">
               <div
                 class="flex h-32 items-end gap-[2px]"
                 role="img"
-                aria-label={`Spending by day, ${byDay.length} days, biggest ${formatDay(biggestDay.date)} at ${money(biggestDay.amountCents)}`}
+                aria-label={`Gastos por dia, ${byDay.length} dias, maior em ${formatDay(biggestDay.date)} com ${money(biggestDay.amountCents)}`}
               >
                 {byDay.map((entry) => (
                   <button
@@ -182,13 +184,13 @@ export const ChartsScreen = clientEntry(
 
           <section class="mt-8">
             <div class="mb-2.5 flex items-center justify-between">
-              <p class="mono-label text-faint">Paid vs share</p>
+              <p class="mono-label text-faint">Pagou vs parte</p>
               <div class="mono-caption flex items-center gap-4 text-muted">
                 <span class="inline-flex items-center gap-1.5">
-                  <span class="h-2 w-2 rounded-full bg-chart-paid" /> paid
+                  <span class="h-2 w-2 rounded-full bg-chart-paid" /> pagou
                 </span>
                 <span class="inline-flex items-center gap-1.5">
-                  <span class="h-2 w-2 rounded-full bg-chart-share" /> share
+                  <span class="h-2 w-2 rounded-full bg-chart-share" /> parte
                 </span>
               </div>
             </div>

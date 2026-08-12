@@ -79,18 +79,18 @@ function EmptyState() {
       </svg>
       <p class="relative text-[26px]">🏕️</p>
       <h2 class="relative mt-3 text-[20px] font-bold tracking-tight">
-        Split the costs, keep the friends
+        Divida as contas, mantenha os amigos
       </h2>
       <p class="mono-caption relative mx-auto mt-2 max-w-sm text-muted">
-        Everything lives on this device — no accounts, no servers. Start a trip
-        or scan a friend's code to join theirs.
+        Tudo fica neste aparelho — sem contas, sem servidores. Comece uma viagem
+        ou escaneie o código de um amigo para entrar na dele.
       </p>
       <div class="relative mt-7 flex flex-wrap justify-center gap-3">
         <a href={routes.trips.new.href()} class={buttonPrimary}>
-          Start a trip
+          Começar uma viagem
         </a>
         <a href={routes.join.href()} class={buttonGhost}>
-          Scan a code
+          Escanear um código
         </a>
       </div>
     </div>
@@ -116,10 +116,10 @@ export const TripsScreen = clientEntry(
       return (
         <div mix={data.mount}>
           <div class="mb-5 flex items-center justify-between">
-            <h1 class="text-[22px] font-bold tracking-tight">Trips</h1>
+            <h1 class="text-[22px] font-bold tracking-tight">Viagens</h1>
             {trips.length > 0 ? (
               <a href={routes.trips.new.href()} class={buttonPrimary}>
-                + New trip
+                + Nova viagem
               </a>
             ) : null}
           </div>

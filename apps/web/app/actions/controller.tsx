@@ -22,7 +22,7 @@ export default createController(routes, {
     },
     join(context) {
       return context.render(
-        <AppShell title="Scan a code — Trip Expenses">
+        <AppShell title="Escanear código — Trip Expenses">
           <JoinScreen />
         </AppShell>
       )

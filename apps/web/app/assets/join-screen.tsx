@@ -57,7 +57,7 @@ export const JoinScreen = clientEntry(
       const chunk = collector.collect(text)
       if (!chunk) return
       if (chunk.payload === null) {
-        progress = `${chunk.received} of ${chunk.total} frames`
+        progress = `${chunk.received} de ${chunk.total} quadros`
         handle.update()
         return
       }
@@ -65,7 +65,7 @@ export const JoinScreen = clientEntry(
       try {
         const decoded = await decompress(chunk.payload)
         const parsed = parseInvitePayload(decoded)
-        if (!parsed) throw new Error('Unrecognized code')
+        if (!parsed) throw new Error('Código não reconhecido')
         payload = parsed
         status = 'found'
         stopCamera()
@@ -73,7 +73,7 @@ export const JoinScreen = clientEntry(
       } catch {
         collector = makeChunkCollector(chunkPrefix)
         progress = ''
-        error = 'That code did not check out. Try scanning again.'
+        error = 'Esse código não bateu. Tente escanear de novo.'
         handle.update()
       }
     }
@@ -156,7 +156,7 @@ export const JoinScreen = clientEntry(
         return (
           <div mix={data.mount}>
             <h1 class="mb-6 text-[22px] font-bold tracking-tight">
-              Found a trip
+              Achamos uma viagem
             </h1>
             <div class="rounded-2xl border border-line bg-panel p-5">
               <div class="flex items-center gap-4">
@@ -168,8 +168,11 @@ export const JoinScreen = clientEntry(
                     {trip.name}
                   </p>
                   <p class="mono-caption text-muted">
-                    {members.length} people · {activeExpenses(trip).length}{' '}
-                    expenses · {trip.currency}
+                    {members.length}{' '}
+                    {members.length === 1 ? 'pessoa' : 'pessoas'} ·{' '}
+                    {activeExpenses(trip).length}{' '}
+                    {activeExpenses(trip).length === 1 ? 'despesa' : 'despesas'}{' '}
+                    · {trip.currency}
                   </p>
                 </div>
               </div>
@@ -182,11 +185,11 @@ export const JoinScreen = clientEntry(
               </div>
               {invited ? (
                 <p class="mono-caption mt-4 rounded-lg border border-amber/30 bg-amber-wash px-3 py-2.5 text-muted">
-                  You'll join as{' '}
+                  Você entra como{' '}
                   <span class="text-ink">
                     {invited.emoji} {invited.name}
                   </span>{' '}
-                  and can add your own expenses.
+                  e pode adicionar suas próprias despesas.
                 </p>
               ) : null}
               <button
@@ -194,7 +197,7 @@ export const JoinScreen = clientEntry(
                 class={`${buttonPrimary} mt-5 w-full`}
                 mix={on('click', accept)}
               >
-                Add trip to this device
+                Adicionar viagem a este aparelho
               </button>
             </div>
           </div>
@@ -204,21 +207,21 @@ export const JoinScreen = clientEntry(
       return (
         <div mix={data.mount}>
           <h1 class="mb-2 text-[22px] font-bold tracking-tight">
-            Scan a friend's code
+            Escaneie o código de um amigo
           </h1>
           <p class="mono-caption mb-6 text-muted">
-            Ask them to open the trip and tap the QR button, then point your
-            camera at their screen.
+            Peça para abrirem a viagem e tocarem no botão de QR, depois aponte
+            sua câmera para a tela.
           </p>
 
           {status === 'blocked' ? (
             <div class="rounded-2xl border border-line bg-panel px-6 py-14 text-center">
               <p class="text-[24px]">📷</p>
-              <p class="mt-3 text-[17px] font-semibold">Camera unavailable</p>
+              <p class="mt-3 text-[17px] font-semibold">Câmera indisponível</p>
               <p class="mono-caption mx-auto mt-2 max-w-sm text-muted">
                 {window.isSecureContext
-                  ? 'Allow camera access for this site in your browser settings and reload the page.'
-                  : "You're viewing the app over an insecure (http) address, and browsers only allow the camera on https. Open the app's https address and try again."}
+                  ? 'Permita o acesso à câmera para este site nas configurações do navegador e recarregue a página.'
+                  : 'Você está usando o app em um endereço inseguro (http), e os navegadores só liberam a câmera em https. Abra o endereço https do app e tente de novo.'}
               </p>
             </div>
           ) : (

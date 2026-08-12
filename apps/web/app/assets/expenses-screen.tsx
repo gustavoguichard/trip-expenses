@@ -16,9 +16,7 @@ import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
 import { buttonPrimary } from './widgets.tsx'
 
 function memberName(trip: Trip, memberId: string) {
-  return (
-    trip.members.find((member) => member.id === memberId)?.name ?? 'Someone'
-  )
+  return trip.members.find((member) => member.id === memberId)?.name ?? 'Alguém'
 }
 
 function ExpenseRow(
@@ -60,9 +58,9 @@ function ExpenseRow(
           </span>
           <span class="mono-caption text-faint">
             {settlement
-              ? 'settled up'
-              : `${payer} paid · ${expense.shares.length} ${
-                  expense.shares.length === 1 ? 'share' : 'shares'
+              ? 'contas acertadas'
+              : `${payer} pagou · ${expense.shares.length} ${
+                  expense.shares.length === 1 ? 'parte' : 'partes'
                 }`}
           </span>
         </span>
@@ -73,17 +71,17 @@ function ExpenseRow(
           {settlement || myMemberId === null ? null : iPaid ? (
             lentCents > 0 ? (
               <span class="mono-caption text-green">
-                you lent {formatCents(lentCents, trip.currency)}
+                você emprestou {formatCents(lentCents, trip.currency)}
               </span>
             ) : (
-              <span class="mono-caption text-faint">your expense</span>
+              <span class="mono-caption text-faint">despesa sua</span>
             )
           ) : myShare > 0 ? (
             <span class="mono-caption text-red">
-              you owe {formatCents(myShare, trip.currency)}
+              você deve {formatCents(myShare, trip.currency)}
             </span>
           ) : (
-            <span class="mono-caption text-faint">not involved</span>
+            <span class="mono-caption text-faint">você está de fora</span>
           )}
         </span>
       </a>
@@ -128,10 +126,12 @@ export const ExpensesScreen = clientEntry(
           {expenses.length === 0 ? (
             <div class="rounded-2xl border border-line bg-panel px-6 py-14 text-center">
               <p class="text-[24px]">🧾</p>
-              <p class="mt-3 text-[17px] font-semibold">No expenses yet</p>
+              <p class="mt-3 text-[17px] font-semibold">
+                Nenhuma despesa ainda
+              </p>
               <p class="mono-caption mx-auto mt-2 max-w-xs text-muted">
-                Add the first one — dinners, rides, tickets — and we'll keep the
-                math straight.
+                Adicione a primeira — jantares, corridas, ingressos — e a gente
+                mantém a conta em dia.
               </p>
             </div>
           ) : (
@@ -172,7 +172,7 @@ export const ExpensesScreen = clientEntry(
               href={routes.trips.newExpense.href({ tripId: trip.id })}
               class={`${buttonPrimary} pointer-events-auto shadow-[0_12px_32px_rgba(0,0,0,0.55)]`}
             >
-              + Add expense
+              + Adicionar despesa
             </a>
           </div>
         </div>

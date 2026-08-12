@@ -30,7 +30,7 @@ export const InviteScreen = clientEntry(
     })
 
     const frameLabel = () =>
-      `frame ${(frame % chunks.length) + 1}/${chunks.length}`
+      `quadro ${(frame % chunks.length) + 1}/${chunks.length}`
 
     function paint() {
       if (!qrNode || chunks.length === 0) return
@@ -106,15 +106,15 @@ export const InviteScreen = clientEntry(
           <TripChrome trip={trip} active="people" />
 
           <h2 class="mb-1 text-[19px] font-bold tracking-tight">
-            Share this trip
+            Compartilhe esta viagem
           </h2>
           <p class="mono-caption mb-6 text-muted">
-            On the other phone, open the app and tap{' '}
-            <span class="text-ink">Scan</span>. Everything syncs from this code
-            — no account needed.
+            No outro celular, abra o app e toque em{' '}
+            <span class="text-ink">Escanear</span>. Tudo sincroniza por este
+            código — sem precisar de conta.
           </p>
 
-          <SectionLabel>Who is holding the other phone?</SectionLabel>
+          <SectionLabel>Quem está com o outro celular?</SectionLabel>
           <div class="mb-6 flex flex-wrap gap-2">
             {members.map((member) => (
               <button
@@ -136,23 +136,26 @@ export const InviteScreen = clientEntry(
                 <Avatar emoji={member.emoji} size="sm" />
                 <span class="text-[13px] font-medium">
                   {member.name}
-                  {member.id === me?.id ? ' (me)' : ''}
+                  {member.id === me?.id ? ' (eu)' : ''}
                 </span>
               </button>
             ))}
           </div>
           <p class="mono-caption -mt-3 mb-6 text-faint">
-            Pick yourself to sync another one of your own devices. Pick no one
-            to just share the numbers.
+            Escolha você para sincronizar outro aparelho seu. Não escolha
+            ninguém para só compartilhar os números.
           </p>
 
           <div class="flex flex-col items-center">
             {qrError ? (
               <div class="w-full rounded-2xl border border-line bg-panel px-6 py-14 text-center">
-                <p class="text-[17px] font-semibold">Couldn't build the code</p>
+                <p class="text-[17px] font-semibold">
+                  Não deu para gerar o código
+                </p>
                 <p class="mono-caption mx-auto mt-2 max-w-sm text-muted">
-                  This browser refused to generate the QR code ({qrError}).
-                  Update it and reload the page to share this trip.
+                  Este navegador não conseguiu gerar o código QR ({qrError}).
+                  Atualize o navegador e recarregue a página para compartilhar a
+                  viagem.
                 </p>
               </div>
             ) : (
@@ -168,11 +171,11 @@ export const InviteScreen = clientEntry(
                 ) : null}
                 {chunks.length > 1 ? (
                   <p class="mono-caption mt-1 text-faint">
-                    Animated code · keep it on screen while your friend scans
+                    Código animado · deixe na tela enquanto seu amigo escaneia
                   </p>
                 ) : (
                   <p class="mono-caption mt-3 text-faint">
-                    Keep it on screen while your friend scans
+                    Deixe na tela enquanto seu amigo escaneia
                   </p>
                 )}
               </div>

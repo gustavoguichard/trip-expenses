@@ -60,7 +60,7 @@ export const BalancesScreen = clientEntry(
         ...[...balances.values()].map((cents) => Math.abs(cents))
       )
       const nameOf = (memberId: string) =>
-        members.find((member) => member.id === memberId)?.name ?? 'Someone'
+        members.find((member) => member.id === memberId)?.name ?? 'Alguém'
       const emojiOf = (memberId: string) =>
         members.find((member) => member.id === memberId)?.emoji ?? '💸'
       const allSettled = transfers.length === 0
@@ -69,7 +69,7 @@ export const BalancesScreen = clientEntry(
         <div mix={data.mount}>
           <TripChrome trip={trip} active="balances" />
 
-          <SectionLabel>Where everyone stands</SectionLabel>
+          <SectionLabel>Como cada um está</SectionLabel>
           <div class="divide-y divide-line rounded-2xl border border-line bg-panel">
             {members.map((member) => {
               const cents = balances.get(member.id) ?? 0
@@ -84,7 +84,7 @@ export const BalancesScreen = clientEntry(
                     <p class="truncate text-[15px] font-medium">
                       {member.name}
                       {member.id === me?.id ? (
-                        <span class="mono-caption ml-2 text-amber">you</span>
+                        <span class="mono-caption ml-2 text-amber">você</span>
                       ) : null}
                     </p>
                     <div class="mt-1.5 h-1 overflow-hidden rounded-full bg-raised">
@@ -110,7 +110,7 @@ export const BalancesScreen = clientEntry(
                     }`}
                   >
                     {cents === 0
-                      ? 'settled'
+                      ? 'em dia'
                       : `${cents > 0 ? '+' : '−'}${formatCents(Math.abs(cents), trip.currency)}`}
                   </span>
                 </div>
@@ -119,12 +119,12 @@ export const BalancesScreen = clientEntry(
           </div>
 
           <div class="mt-8">
-            <SectionLabel>Settle up</SectionLabel>
+            <SectionLabel>Acertar as contas</SectionLabel>
             {allSettled ? (
               <div class="rounded-2xl border border-green/30 bg-green-wash px-6 py-10 text-center">
                 <p class="text-[24px]">🤝</p>
                 <p class="mt-2 text-[15px] font-semibold text-green">
-                  All settled — nobody owes anybody
+                  Tudo acertado — ninguém deve nada a ninguém
                 </p>
               </div>
             ) : (
@@ -145,7 +145,7 @@ export const BalancesScreen = clientEntry(
                       <span class="font-medium text-ink">
                         {nameOf(transfer.from)}
                       </span>{' '}
-                      pays{' '}
+                      paga{' '}
                       <span class="font-medium text-ink">
                         {nameOf(transfer.to)}
                       </span>
@@ -166,15 +166,15 @@ export const BalancesScreen = clientEntry(
                         )
                       )}
                     >
-                      Mark paid
+                      Marcar pago
                     </button>
                   </div>
                 ))}
               </div>
             )}
             <p class="mono-caption mt-2 px-1 text-faint">
-              Marking a payment records it on the trip so everyone's copy stays
-              in sync.
+              Marcar um pagamento registra na viagem, e a cópia de cada um
+              continua em sincronia.
             </p>
           </div>
 

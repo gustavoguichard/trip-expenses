@@ -97,17 +97,17 @@ export const MembersScreen = clientEntry(
 
           <div class="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-amber/30 bg-amber-wash px-4 py-3.5">
             <p class="mono-caption text-muted">
-              Traveling together? Put the trip on their phone too.
+              Viajando juntos? Coloque a viagem no celular deles também.
             </p>
             <a
               href={routes.trips.invite.href({ tripId: trip.id })}
               class={buttonPrimary}
             >
-              Invite
+              Convidar
             </a>
           </div>
 
-          <SectionLabel>On this trip</SectionLabel>
+          <SectionLabel>Nessa viagem</SectionLabel>
           <div class="divide-y divide-line rounded-2xl border border-line bg-panel">
             {members.map((member) => {
               const total = totals.find(
@@ -123,12 +123,13 @@ export const MembersScreen = clientEntry(
                     <p class="truncate text-[15px] font-medium">
                       {member.name}
                       {member.id === me?.id ? (
-                        <span class="mono-caption ml-2 text-amber">you</span>
+                        <span class="mono-caption ml-2 text-amber">você</span>
                       ) : null}
                     </p>
                     <p class="mono-caption text-faint">
-                      paid {formatCents(total?.paidCents ?? 0, trip.currency)} ·
-                      share {formatCents(total?.shareCents ?? 0, trip.currency)}
+                      pagou {formatCents(total?.paidCents ?? 0, trip.currency)}{' '}
+                      · parte{' '}
+                      {formatCents(total?.shareCents ?? 0, trip.currency)}
                     </p>
                   </div>
                   {member.id === me?.id ? null : (
@@ -145,12 +146,12 @@ export const MembersScreen = clientEntry(
                         )
                       )}
                     >
-                      This is me
+                      Sou eu
                     </button>
                   )}
                   <button
                     type="button"
-                    aria-label={`Remove ${member.name}`}
+                    aria-label={`Remover ${member.name}`}
                     class="mono-label cursor-pointer px-2 py-2 text-faint transition-colors hover:text-red"
                     mix={on('click', () =>
                       run(
@@ -169,7 +170,7 @@ export const MembersScreen = clientEntry(
           </div>
 
           <div class="mt-7">
-            <SectionLabel>Add a person</SectionLabel>
+            <SectionLabel>Adicionar pessoa</SectionLabel>
             <form
               class="flex items-center gap-2.5"
               mix={on('submit', (event) => {
@@ -179,7 +180,7 @@ export const MembersScreen = clientEntry(
             >
               <button
                 type="button"
-                aria-label="Change avatar"
+                aria-label="Trocar avatar"
                 class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line-bright bg-panel text-[18px] transition-colors hover:border-amber"
                 mix={on('click', () => {
                   newEmoji = randomOf(emojiChoices)
@@ -191,14 +192,14 @@ export const MembersScreen = clientEntry(
               <input
                 key={`add-${addRound}`}
                 class={inputClass}
-                placeholder="Name"
+                placeholder="Nome"
                 defaultValue={newName}
                 mix={on('input', (event) => {
                   newName = (event.currentTarget as HTMLInputElement).value
                 })}
               />
               <button type="submit" class={buttonGhost}>
-                Add
+                Adicionar
               </button>
             </form>
           </div>
@@ -211,15 +212,15 @@ export const MembersScreen = clientEntry(
             {confirmingDelete ? (
               <div class="flex flex-wrap items-center gap-3">
                 <p class="mono-caption flex-1 text-muted">
-                  Delete “{trip.name}” from this device? Friends who synced it
-                  keep their copy.
+                  Excluir “{trip.name}” deste aparelho? Amigos que sincronizaram
+                  continuam com a cópia.
                 </p>
                 <button
                   type="button"
                   class={buttonDanger}
                   mix={on('click', () => removeTrip(trip))}
                 >
-                  Yes, delete
+                  Sim, excluir
                 </button>
                 <button
                   type="button"
@@ -229,7 +230,7 @@ export const MembersScreen = clientEntry(
                     handle.update()
                   })}
                 >
-                  Keep it
+                  Manter
                 </button>
               </div>
             ) : (
@@ -241,7 +242,7 @@ export const MembersScreen = clientEntry(
                   handle.update()
                 })}
               >
-                Delete this trip
+                Excluir esta viagem
               </button>
             )}
           </div>

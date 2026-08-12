@@ -64,7 +64,9 @@ function validateExpense(
     'categoryId' | 'amountCents' | 'paidBy' | 'shares'
   >
 ) {
-  if (!findCategory(input.categoryId)) throw new Error('Unknown category')
+  if (!findCategory(input.categoryId)) {
+    throw new Error('Categoria desconhecida')
+  }
 
   const memberIds = new Set(activeMembers(trip).map((member) => member.id))
   const involved = [
@@ -72,7 +74,7 @@ function validateExpense(
     ...input.shares.map((share) => share.memberId),
   ]
   if (involved.some((memberId) => !memberIds.has(memberId))) {
-    throw new Error('Everyone on the expense must be a member of the trip')
+    throw new Error('Todo mundo na despesa precisa fazer parte da viagem')
   }
 
   const shared = input.shares.reduce(
@@ -80,12 +82,12 @@ function validateExpense(
     0
   )
   if (shared !== input.amountCents) {
-    throw new Error('The split must add up to the full amount')
+    throw new Error('A divisão precisa somar o valor total')
   }
 
   const uniqueMembers = new Set(input.shares.map((share) => share.memberId))
   if (uniqueMembers.size !== input.shares.length) {
-    throw new Error('Each person can appear only once in the split')
+    throw new Error('Cada pessoa só pode aparecer uma vez na divisão')
   }
 }
 
@@ -94,7 +96,7 @@ const addExpense = applySchema(
   documentContextSchema
 )(({ tripId, ...input }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
   validateExpense(trip, input)
 
   const timestamp = now()
@@ -125,12 +127,12 @@ const updateExpense = applySchema(
   documentContextSchema
 )(({ tripId, expenseId, ...input }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const expense = activeExpenses(trip).find(
     (candidate) => candidate.id === expenseId
   )
-  if (!expense) throw new Error('Expense not found')
+  if (!expense) throw new Error('Despesa não encontrada')
   validateExpense(trip, input)
 
   const timestamp = now()
@@ -154,12 +156,12 @@ const deleteExpense = applySchema(
   documentContextSchema
 )(({ tripId, expenseId }, { document }) => {
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const expense = activeExpenses(trip).find(
     (candidate) => candidate.id === expenseId
   )
-  if (!expense) throw new Error('Expense not found')
+  if (!expense) throw new Error('Despesa não encontrada')
 
   const timestamp = now()
   const deleted: Expense = {
@@ -183,18 +185,18 @@ const addSettlement = applySchema(
   addSettlementSchema,
   documentContextSchema
 )(async ({ tripId, from, to, amountCents, date }, { document }) => {
-  if (from === to) throw new Error('Choose two different people')
+  if (from === to) throw new Error('Escolha duas pessoas diferentes')
   const trip = findTrip(document, tripId)
-  if (!trip) throw new Error('Trip not found')
+  if (!trip) throw new Error('Viagem não encontrada')
 
   const payer = activeMembers(trip).find((member) => member.id === from)
   const receiver = activeMembers(trip).find((member) => member.id === to)
-  if (!payer || !receiver) throw new Error('Member not found')
+  if (!payer || !receiver) throw new Error('Pessoa não encontrada')
 
   const result = await addExpense(
     {
       tripId,
-      description: `${payer.name} paid ${receiver.name}`,
+      description: `${payer.name} pagou ${receiver.name}`,
       categoryId: settlementCategory.id,
       amountCents,
       date,
@@ -203,7 +205,7 @@ const addSettlement = applySchema(
     },
     { document }
   )
-  if (!result.success) throw new Error('Could not record the payment')
+  if (!result.success) throw new Error('Não deu para registrar o pagamento')
   return result.data
 })
 

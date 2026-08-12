@@ -67,7 +67,7 @@ Chart bars are plain divs on token colors — no chart library. The series pair 
 
 ## Voice and language
 
-- The product is English, lowercase-calm, and human: "Share this trip", "Ask them to open the trip and tap the QR button", "All settled up".
+- The product speaks Brazilian Portuguese (pt-BR), lowercase-calm and human: "Compartilhe esta viagem", "Peça para abrirem a viagem e tocarem no botão de QR", "Tudo acertado". Code identifiers and routes stay in English.
 - Tone: direct and concrete, a friend doing the math — no hype, no exclamation marks. States describe facts ("Camera unavailable"), never scold.
 - Money is always formatted through `formatCents` with the trip's currency; days through `formatDay` (see the `formatting-datetimes` skill).
 - Pluralize properly ("1 person", "3 people") — never "person(s)".

@@ -112,9 +112,9 @@ export const TripNewScreen = clientEntry(
           href={routes.home.href()}
           class="mono-label mb-5 inline-flex items-center gap-1.5 text-faint transition-colors hover:text-ink"
         >
-          <span aria-hidden="true">←</span> Trips
+          <span aria-hidden="true">←</span> Viagens
         </a>
-        <h1 class="mb-6 text-[22px] font-bold tracking-tight">New trip</h1>
+        <h1 class="mb-6 text-[22px] font-bold tracking-tight">Nova viagem</h1>
 
         <form
           class="space-y-7"
@@ -124,7 +124,7 @@ export const TripNewScreen = clientEntry(
           })}
         >
           <div>
-            <SectionLabel>Trip name</SectionLabel>
+            <SectionLabel>Nome da viagem</SectionLabel>
             <div class="flex items-center gap-3">
               <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line-bright bg-panel text-[20px]">
                 {tripEmoji}
@@ -152,7 +152,7 @@ export const TripNewScreen = clientEntry(
           </div>
 
           <div>
-            <SectionLabel>Currency</SectionLabel>
+            <SectionLabel>Moeda</SectionLabel>
             <div class="relative">
               <select
                 class={`${inputClass} cursor-pointer appearance-none pr-10`}
@@ -184,13 +184,13 @@ export const TripNewScreen = clientEntry(
           </div>
 
           <div>
-            <SectionLabel>Who's going?</SectionLabel>
+            <SectionLabel>Quem vai?</SectionLabel>
             <div class="space-y-2.5">
               {members.map((member, index) => (
                 <div key={member.key} class="flex items-center gap-2.5">
                   <button
                     type="button"
-                    aria-label="Change avatar"
+                    aria-label="Trocar avatar"
                     class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line-bright bg-panel text-[18px] transition-colors hover:border-amber"
                     mix={on('click', () => {
                       members[index] = {
@@ -205,7 +205,7 @@ export const TripNewScreen = clientEntry(
                   <input
                     class={inputClass}
                     name={`member-${member.key}`}
-                    placeholder={index === 0 ? 'Your name' : 'Friend'}
+                    placeholder={index === 0 ? 'Seu nome' : 'Nome de quem vai'}
                     defaultValue={member.name}
                     mix={[
                       ref((node) => {
@@ -224,7 +224,7 @@ export const TripNewScreen = clientEntry(
                   {members.length > 1 ? (
                     <button
                       type="button"
-                      aria-label="Remove person"
+                      aria-label="Remover pessoa"
                       class="mono-label cursor-pointer px-2 py-2 text-faint transition-colors hover:text-red"
                       mix={on('click', () => {
                         members = members.filter((_, i) => i !== index)
@@ -238,7 +238,7 @@ export const TripNewScreen = clientEntry(
               ))}
             </div>
             <p class="mono-caption mt-2 text-faint">
-              The first person is you. Tap an avatar to shuffle it.
+              A primeira pessoa é você. Toque no avatar para trocar.
             </p>
             <button
               type="button"
@@ -250,7 +250,7 @@ export const TripNewScreen = clientEntry(
                 handle.update()
               })}
             >
-              + Add a person
+              + Adicionar pessoa
             </button>
           </div>
 
@@ -261,7 +261,7 @@ export const TripNewScreen = clientEntry(
             class={`${buttonPrimary} w-full`}
             disabled={saving}
           >
-            {saving ? 'Creating…' : 'Create trip'}
+            {saving ? 'Criando…' : 'Criar viagem'}
           </button>
         </form>
       </div>

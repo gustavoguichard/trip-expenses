@@ -67,7 +67,7 @@ async function mutateDocument<Data extends { document: TripDocument }>(
     const [first] = result.errors
     return {
       data: null,
-      error: first?.message || 'Something went wrong. Check the form.',
+      error: first?.message || 'Algo deu errado. Confira o formulário.',
     }
   }
   documentStore.save(result.data.document)

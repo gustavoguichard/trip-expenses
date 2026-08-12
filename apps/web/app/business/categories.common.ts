@@ -5,18 +5,18 @@ type Category = {
 }
 
 const categories: Category[] = [
-  { id: 'food', label: 'Food & drinks', emoji: '🍕' },
-  { id: 'groceries', label: 'Groceries', emoji: '🛒' },
-  { id: 'transport', label: 'Transport', emoji: '🚕' },
-  { id: 'lodging', label: 'Lodging', emoji: '🏨' },
-  { id: 'activities', label: 'Activities', emoji: '🎟️' },
-  { id: 'shopping', label: 'Shopping', emoji: '🛍️' },
-  { id: 'other', label: 'Other', emoji: '💸' },
+  { id: 'food', label: 'Comida e bebida', emoji: '🍕' },
+  { id: 'groceries', label: 'Mercado', emoji: '🛒' },
+  { id: 'transport', label: 'Transporte', emoji: '🚕' },
+  { id: 'lodging', label: 'Hospedagem', emoji: '🏨' },
+  { id: 'activities', label: 'Passeios', emoji: '🎟️' },
+  { id: 'shopping', label: 'Compras', emoji: '🛍️' },
+  { id: 'other', label: 'Outros', emoji: '💸' },
 ]
 
 const settlementCategory: Category = {
   id: 'settlement',
-  label: 'Settle up',
+  label: 'Acerto',
   emoji: '🤝',
 }
 
