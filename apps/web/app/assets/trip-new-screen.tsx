@@ -64,17 +64,28 @@ export const TripNewScreen = clientEntry(
       handle.update()
     })
 
-    async function save() {
+    async function save(form: HTMLFormElement) {
       if (saving) return
       saving = true
       error = ''
       handle.update()
 
+      const fields = new FormData(form)
+      const fieldValue = (fieldName: string, fallback: string) => {
+        const value = fields.get(fieldName)
+        return typeof value === 'string' ? value : fallback
+      }
+
       const created = await mutateDocument(createTrip, {
-        name,
+        name: fieldValue('tripName', name),
         emoji: tripEmoji,
         currency,
-        members: members.filter((member) => member.name.trim() !== ''),
+        members: members
+          .map((member) => ({
+            ...member,
+            name: fieldValue(`member-${member.key}`, member.name),
+          }))
+          .filter((member) => member.name.trim() !== ''),
       })
       if (created.error !== null) {
         error = created.error
@@ -109,7 +120,7 @@ export const TripNewScreen = clientEntry(
           class="space-y-7"
           mix={on('submit', (event) => {
             event.preventDefault()
-            save()
+            save(event.currentTarget as HTMLFormElement)
           })}
         >
           <div>
@@ -120,6 +131,7 @@ export const TripNewScreen = clientEntry(
               </span>
               <input
                 class={inputClass}
+                name="tripName"
                 placeholder="Chapada dos Veadeiros"
                 defaultValue={name}
                 mix={on('input', (event) => {
@@ -192,6 +204,7 @@ export const TripNewScreen = clientEntry(
                   </button>
                   <input
                     class={inputClass}
+                    name={`member-${member.key}`}
                     placeholder={index === 0 ? 'Your name' : 'Friend'}
                     defaultValue={member.name}
                     mix={[
