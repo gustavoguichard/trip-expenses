@@ -86,7 +86,7 @@ We care a lot about beautifully simple UI/UX. Always ensure our UX/UI is outstan
 
 ## Working agreements
 
-- Commit directly on `main`, in small frequent increments — one commit per coherent step. Feature branches only when parallel work would collide.
+- Commit directly on `main`, in small frequent increments — one commit per coherent step, and push to `origin` after each commit. Feature branches only when parallel work would collide.
 - The product decision record lives in `product-plan.md`; the as-built map in `architecture.md`. Keep both current as things change.
 - Dev servers started for verification (by agents or tooling) always use a non-default port via `PORT=<n> pnpm --filter @trip-expenses/web run dev` — port 3000 belongs to the human.
 - Never kill processes you did not start this session, and never anything attached to a TTY.
