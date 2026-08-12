@@ -1,17 +1,5 @@
 async function drainStream(stream: ReadableStream<Uint8Array>) {
-  const chunks: Uint8Array[] = []
-  let length = 0
-  for await (const chunk of stream) {
-    chunks.push(chunk)
-    length += chunk.length
-  }
-  const bytes = new Uint8Array(length)
-  let offset = 0
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset)
-    offset += chunk.length
-  }
-  return bytes
+  return new Uint8Array(await new Response(stream).arrayBuffer())
 }
 
 function toBase64Url(bytes: Uint8Array) {
