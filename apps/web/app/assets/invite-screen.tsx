@@ -21,11 +21,15 @@ export const InviteScreen = clientEntry(
     let frame = 0
     let generation = 0
     let qrNode: HTMLElement | null = null
+    let frameCounterNode: HTMLElement | null = null
     let interval: ReturnType<typeof setInterval> | null = null
 
     handle.signal.addEventListener('abort', () => {
       if (interval) clearInterval(interval)
     })
+
+    const frameLabel = () =>
+      `frame ${(frame % chunks.length) + 1}/${chunks.length}`
 
     function paint() {
       if (!qrNode || chunks.length === 0) return
@@ -33,6 +37,7 @@ export const InviteScreen = clientEntry(
         ecc: 'M',
         border: 2,
       })
+      if (frameCounterNode) frameCounterNode.textContent = frameLabel()
     }
 
     async function regenerate(trip: Trip) {
@@ -40,14 +45,14 @@ export const InviteScreen = clientEntry(
       const payload = JSON.stringify(makeInvitePayload(trip, inviteMemberId))
       const encoded = await compress(payload)
       if (current !== generation) return
-      chunks = toChunks(chunkPrefix, encoded, 400)
+      chunks = toChunks(chunkPrefix, encoded, 700)
       frame = 0
       if (interval) clearInterval(interval)
       if (chunks.length > 1) {
         interval = setInterval(() => {
           frame += 1
           paint()
-        }, 400)
+        }, 800)
       }
       handle.update()
       paint()
@@ -58,6 +63,11 @@ export const InviteScreen = clientEntry(
         qrNode = node as HTMLElement
         regenerate(trip)
       })
+
+    const mountFrameCounter = ref((node) => {
+      frameCounterNode = node as HTMLElement
+      frameCounterNode.textContent = frameLabel()
+    })
 
     return () => {
       if (!data.ready()) {
@@ -126,11 +136,14 @@ export const InviteScreen = clientEntry(
           </p>
 
           <div class="flex flex-col items-center">
-            <div class="w-full max-w-[320px] rounded-2xl bg-white p-3 [&_svg]:h-auto [&_svg]:w-full">
-              <div mix={mountQr(trip)} />
+            <div class="w-full max-w-[320px] rounded-2xl bg-white p-3 [&_svg]:block [&_svg]:h-full [&_svg]:w-full">
+              <div class="aspect-square w-full" mix={mountQr(trip)} />
             </div>
             {chunks.length > 1 ? (
-              <p class="mono-caption mt-3 text-faint">
+              <p class="mono-caption mt-3 text-ink" mix={mountFrameCounter} />
+            ) : null}
+            {chunks.length > 1 ? (
+              <p class="mono-caption mt-1 text-faint">
                 Animated code · keep it on screen while your friend scans
               </p>
             ) : (
