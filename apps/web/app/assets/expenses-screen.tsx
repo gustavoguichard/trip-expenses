@@ -11,6 +11,7 @@ import {
 import { myMember } from '../business/trips.common.ts'
 import { routes } from '../routes.ts'
 import { formatCents, formatDay } from './money.ts'
+import { routeParams } from './route-params.ts'
 import { bindDocument, deviceId } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
 import { BottomBar, buttonPrimary } from './widgets.tsx'
@@ -91,7 +92,7 @@ function ExpenseRow(
 
 export const ExpensesScreen = clientEntry(
   import.meta.url,
-  function ExpensesScreen(handle: Handle<{ tripId: string }>) {
+  function ExpensesScreen(handle: Handle) {
     const data = bindDocument(handle)
 
     return () => {
@@ -103,7 +104,7 @@ export const ExpensesScreen = clientEntry(
         )
       }
 
-      const trip = findTrip(data.document(), handle.props.tripId)
+      const trip = findTrip(data.document(), routeParams().tripId ?? '')
       if (!trip) {
         return (
           <div mix={data.mount}>

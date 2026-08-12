@@ -7,6 +7,7 @@ import { inviteLinkHash, makeInvitePayload } from '../business/sync.common.ts'
 import { myMember } from '../business/trips.common.ts'
 import { compress, toChunks } from '../framework/sync-codec.ts'
 import { routes } from '../routes.ts'
+import { routeParams } from './route-params.ts'
 import { bindDocument, deviceId, stampShare } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
 import { Avatar, buttonPrimary, SectionLabel } from './widgets.tsx'
@@ -16,7 +17,7 @@ const longLinkThreshold = 6000
 
 export const InviteScreen = clientEntry(
   import.meta.url,
-  function InviteScreen(handle: Handle<{ tripId: string }>) {
+  function InviteScreen(handle: Handle) {
     const data = bindDocument(handle)
     let inviteMemberId: string | null = null
     let chunks: string[] = []
@@ -119,7 +120,7 @@ export const InviteScreen = clientEntry(
         )
       }
 
-      const trip = findTrip(data.document(), handle.props.tripId)
+      const trip = findTrip(data.document(), routeParams().tripId ?? '')
       if (!trip) {
         return (
           <div mix={data.mount}>

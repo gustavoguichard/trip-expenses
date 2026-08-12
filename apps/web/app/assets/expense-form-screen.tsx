@@ -22,6 +22,7 @@ import {
 import { myMember } from '../business/trips.common.ts'
 import { routes } from '../routes.ts'
 import { formatCents, today } from './money.ts'
+import { routeParams } from './route-params.ts'
 import { bindDocument, deviceId, mutateDocument } from './store.ts'
 import { Loading, TripMissing } from './trip-chrome.tsx'
 import {
@@ -75,9 +76,7 @@ function MemberChip(
 
 export const ExpenseFormScreen = clientEntry(
   import.meta.url,
-  function ExpenseFormScreen(
-    handle: Handle<{ tripId: string; expenseId?: string }>
-  ) {
+  function ExpenseFormScreen(handle: Handle) {
     const data = bindDocument(handle)
     let form: FormState | null = null
     let error = ''
@@ -87,10 +86,9 @@ export const ExpenseFormScreen = clientEntry(
 
     function seedForm(trip: Trip) {
       const members = activeMembers(trip)
-      const expense = handle.props.expenseId
-        ? activeExpenses(trip).find(
-            (candidate) => candidate.id === handle.props.expenseId
-          )
+      const { expenseId } = routeParams()
+      const expense = expenseId
+        ? activeExpenses(trip).find((candidate) => candidate.id === expenseId)
         : undefined
       const me = myMember(trip, deviceId())
 
@@ -205,11 +203,9 @@ export const ExpenseFormScreen = clientEntry(
         paidBy: state.paidBy,
         shares: buildShares(state, amountCents),
       }
-      const result = handle.props.expenseId
-        ? await mutateDocument(updateExpense, {
-            ...input,
-            expenseId: handle.props.expenseId,
-          })
+      const { expenseId } = routeParams()
+      const result = expenseId
+        ? await mutateDocument(updateExpense, { ...input, expenseId })
         : await mutateDocument(addExpense, input)
 
       if (result.error !== null) {
@@ -222,12 +218,13 @@ export const ExpenseFormScreen = clientEntry(
     }
 
     async function remove(trip: Trip) {
-      if (!handle.props.expenseId || saving) return
+      const { expenseId } = routeParams()
+      if (!expenseId || saving) return
       saving = true
       handle.update()
       const result = await mutateDocument(deleteExpense, {
         tripId: trip.id,
-        expenseId: handle.props.expenseId,
+        expenseId,
       })
       if (result.error !== null) {
         error = result.error
@@ -247,7 +244,7 @@ export const ExpenseFormScreen = clientEntry(
         )
       }
 
-      const trip = findTrip(data.document(), handle.props.tripId)
+      const trip = findTrip(data.document(), routeParams().tripId ?? '')
       if (!trip) {
         return (
           <div mix={data.mount}>
@@ -259,7 +256,7 @@ export const ExpenseFormScreen = clientEntry(
       if (!form) seedForm(trip)
       const state = form as FormState
       const members = activeMembers(trip)
-      const editing = Boolean(handle.props.expenseId)
+      const editing = Boolean(routeParams().expenseId)
       const settlement = state.categoryId === settlementCategory.id
       const amountCents = parseAmount(state.amountText)
       const selectedMembers = members.filter((member) =>

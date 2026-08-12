@@ -12,6 +12,7 @@ import {
 } from '../business/trips.common.ts'
 import { routes } from '../routes.ts'
 import { formatCents } from './money.ts'
+import { routeParams } from './route-params.ts'
 import { bindDocument, deviceId, mutateDocument } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
 import {
@@ -29,7 +30,7 @@ import {
 
 export const MembersScreen = clientEntry(
   import.meta.url,
-  function MembersScreen(handle: Handle<{ tripId: string }>) {
+  function MembersScreen(handle: Handle) {
     const data = bindDocument(handle)
     let error = ''
     let newName = ''
@@ -80,7 +81,7 @@ export const MembersScreen = clientEntry(
         )
       }
 
-      const trip = findTrip(data.document(), handle.props.tripId)
+      const trip = findTrip(data.document(), routeParams().tripId ?? '')
       if (!trip) {
         return (
           <div mix={data.mount}>

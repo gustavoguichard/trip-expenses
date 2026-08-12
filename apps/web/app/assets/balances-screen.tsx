@@ -6,13 +6,14 @@ import { addSettlement } from '../business/expenses.common.ts'
 import { activeMembers, findTrip, type Trip } from '../business/store.common.ts'
 import { myMember } from '../business/trips.common.ts'
 import { formatCents, today } from './money.ts'
+import { routeParams } from './route-params.ts'
 import { bindDocument, deviceId, mutateDocument } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
 import { Avatar, ErrorNote, SectionLabel } from './widgets.tsx'
 
 export const BalancesScreen = clientEntry(
   import.meta.url,
-  function BalancesScreen(handle: Handle<{ tripId: string }>) {
+  function BalancesScreen(handle: Handle) {
     const data = bindDocument(handle)
     let error = ''
     let settling = ''
@@ -42,7 +43,7 @@ export const BalancesScreen = clientEntry(
         )
       }
 
-      const trip = findTrip(data.document(), handle.props.tripId)
+      const trip = findTrip(data.document(), routeParams().tripId ?? '')
       if (!trip) {
         return (
           <div mix={data.mount}>

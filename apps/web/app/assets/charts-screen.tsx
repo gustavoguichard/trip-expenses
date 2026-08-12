@@ -10,6 +10,7 @@ import {
 import { findCategory } from '../business/categories.common.ts'
 import { activeMembers, findTrip } from '../business/store.common.ts'
 import { formatCents, formatDay } from './money.ts'
+import { routeParams } from './route-params.ts'
 import { bindDocument } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
 import { SectionLabel } from './widgets.tsx'
@@ -27,7 +28,7 @@ function StatTile(handle: Handle<{ label: string; value: string }>) {
 
 export const ChartsScreen = clientEntry(
   import.meta.url,
-  function ChartsScreen(handle: Handle<{ tripId: string }>) {
+  function ChartsScreen(handle: Handle) {
     const data = bindDocument(handle)
     let selectedDay: string | null = null
 
@@ -40,7 +41,7 @@ export const ChartsScreen = clientEntry(
         )
       }
 
-      const trip = findTrip(data.document(), handle.props.tripId)
+      const trip = findTrip(data.document(), routeParams().tripId ?? '')
       if (!trip) {
         return (
           <div mix={data.mount}>

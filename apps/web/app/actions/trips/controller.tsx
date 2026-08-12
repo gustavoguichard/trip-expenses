@@ -22,52 +22,49 @@ export default createController(routes.trips, {
     show(context) {
       return context.render(
         <AppShell>
-          <ExpensesScreen tripId={context.params.tripId} />
+          <ExpensesScreen />
         </AppShell>
       )
     },
     newExpense(context) {
       return context.render(
         <AppShell title="Adicionar despesa — Trip Expenses">
-          <ExpenseFormScreen tripId={context.params.tripId} />
+          <ExpenseFormScreen />
         </AppShell>
       )
     },
     expense(context) {
       return context.render(
         <AppShell title="Editar despesa — Trip Expenses">
-          <ExpenseFormScreen
-            tripId={context.params.tripId}
-            expenseId={context.params.expenseId}
-          />
+          <ExpenseFormScreen />
         </AppShell>
       )
     },
     balances(context) {
       return context.render(
         <AppShell title="Saldos — Trip Expenses">
-          <BalancesScreen tripId={context.params.tripId} />
+          <BalancesScreen />
         </AppShell>
       )
     },
     charts(context) {
       return context.render(
         <AppShell title="Gráficos — Trip Expenses">
-          <ChartsScreen tripId={context.params.tripId} />
+          <ChartsScreen />
         </AppShell>
       )
     },
     members(context) {
       return context.render(
         <AppShell title="Pessoas — Trip Expenses">
-          <MembersScreen tripId={context.params.tripId} />
+          <MembersScreen />
         </AppShell>
       )
     },
     invite(context) {
       return context.render(
         <AppShell title="Convite — Trip Expenses">
-          <InviteScreen tripId={context.params.tripId} />
+          <InviteScreen />
         </AppShell>
       )
     },
