@@ -59,6 +59,7 @@ export const TripNewScreen = clientEntry(
     let pendingFocusKey = ''
     let error = ''
     let saving = false
+    let fieldErrors: { name?: string; members?: string } = {}
 
     const randomizeTripEmoji = ref(() => {
       tripEmoji = randomOf(tripEmojiChoices)
@@ -67,26 +68,40 @@ export const TripNewScreen = clientEntry(
 
     async function save(form: HTMLFormElement) {
       if (saving) return
-      saving = true
-      error = ''
-      handle.update()
 
       const fields = new FormData(form)
       const fieldValue = (fieldName: string, fallback: string) => {
         const value = fields.get(fieldName)
         return typeof value === 'string' ? value : fallback
       }
+      const tripName = fieldValue('tripName', name).trim()
+      const namedMembers = members
+        .map((member) => ({
+          ...member,
+          name: fieldValue(`member-${member.key}`, member.name).trim(),
+        }))
+        .filter((member) => member.name !== '')
+
+      fieldErrors = {
+        ...(tripName === '' ? { name: 'Dê um nome à viagem.' } : {}),
+        ...(namedMembers.length === 0
+          ? { members: 'Adicione pelo menos uma pessoa com nome.' }
+          : {}),
+      }
+      if (fieldErrors.name || fieldErrors.members) {
+        handle.update()
+        return
+      }
+
+      saving = true
+      error = ''
+      handle.update()
 
       const created = await mutateDocument(createTrip, {
-        name: fieldValue('tripName', name),
+        name: tripName,
         emoji: tripEmoji,
         currency,
-        members: members
-          .map((member) => ({
-            ...member,
-            name: fieldValue(`member-${member.key}`, member.name),
-          }))
-          .filter((member) => member.name.trim() !== ''),
+        members: namedMembers,
       })
       if (created.error !== null) {
         error = created.error
@@ -143,9 +158,16 @@ export const TripNewScreen = clientEntry(
                 defaultValue={name}
                 mix={on('input', (event) => {
                   name = (event.currentTarget as HTMLInputElement).value
+                  if (fieldErrors.name) {
+                    fieldErrors = { ...fieldErrors, name: undefined }
+                    handle.update()
+                  }
                 })}
               />
             </div>
+            {fieldErrors.name ? (
+              <p class="mono-caption mt-2 text-red">{fieldErrors.name}</p>
+            ) : null}
           </div>
 
           <div>
@@ -211,6 +233,10 @@ export const TripNewScreen = clientEntry(
                           ...member,
                           name: (event.currentTarget as HTMLInputElement).value,
                         }
+                        if (fieldErrors.members) {
+                          fieldErrors = { ...fieldErrors, members: undefined }
+                          handle.update()
+                        }
                       }),
                     ]}
                   />
@@ -230,6 +256,9 @@ export const TripNewScreen = clientEntry(
                 </div>
               ))}
             </div>
+            {fieldErrors.members ? (
+              <p class="mono-caption mt-2 text-red">{fieldErrors.members}</p>
+            ) : null}
             <p class="mono-caption mt-2 text-faint">
               A primeira pessoa é você. Toque no avatar para escolher outro.
             </p>

@@ -82,6 +82,8 @@ export const ExpenseFormScreen = clientEntry(
     let form: FormState | null = null
     let error = ''
     let saving = false
+    let fieldErrors: { description?: string; amount?: string; split?: string } =
+      {}
 
     function seedForm(trip: Trip) {
       const members = activeMembers(trip)
@@ -139,6 +141,14 @@ export const ExpenseFormScreen = clientEntry(
       )
     }
 
+    function customTotalOf(state: FormState) {
+      return [...state.splitWith].reduce(
+        (total, memberId) =>
+          total + (parseAmount(state.customAmounts.get(memberId) ?? '') ?? 0),
+        0
+      )
+    }
+
     function buildShares(state: FormState, amountCents: number) {
       const selected = [...state.splitWith]
       if (state.splitMode === 'equally') {
@@ -157,11 +167,30 @@ export const ExpenseFormScreen = clientEntry(
       if (!form || saving) return
       const state = form
       const amountCents = parseAmount(state.amountText)
+      const settlement = state.categoryId === settlementCategory.id
+
+      fieldErrors = {}
+      if (state.description.trim() === '') {
+        fieldErrors.description = 'Conte o que foi essa despesa.'
+      }
       if (amountCents === null) {
-        error = 'Informe um valor maior que zero.'
+        fieldErrors.amount = 'Informe um valor maior que zero.'
+      }
+      if (!settlement && state.splitWith.size === 0) {
+        fieldErrors.split = 'Escolha quem entra na divisão.'
+      } else if (
+        !settlement &&
+        state.splitMode === 'custom' &&
+        amountCents !== null &&
+        customTotalOf(state) !== amountCents
+      ) {
+        fieldErrors.split = `A divisão precisa somar ${formatCents(amountCents, trip.currency)}.`
+      }
+      if (fieldErrors.description || fieldErrors.amount || fieldErrors.split) {
         handle.update()
         return
       }
+      if (amountCents === null) return
 
       saving = true
       error = ''
@@ -240,11 +269,7 @@ export const ExpenseFormScreen = clientEntry(
         amountCents !== null && state.splitMode === 'equally'
           ? equalShares(amountCents, [...state.splitWith])
           : null
-      const customTotal = [...state.splitWith].reduce(
-        (total, memberId) =>
-          total + (parseAmount(state.customAmounts.get(memberId) ?? '') ?? 0),
-        0
-      )
+      const customTotal = customTotalOf(state)
 
       return (
         <div mix={data.mount}>
@@ -295,9 +320,18 @@ export const ExpenseFormScreen = clientEntry(
                     state.description = (
                       event.currentTarget as HTMLInputElement
                     ).value
+                    if (fieldErrors.description) {
+                      fieldErrors = { ...fieldErrors, description: undefined }
+                      handle.update()
+                    }
                   })}
                 />
               </div>
+              {fieldErrors.description ? (
+                <p class="mono-caption mt-2 text-red">
+                  {fieldErrors.description}
+                </p>
+              ) : null}
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -305,16 +339,20 @@ export const ExpenseFormScreen = clientEntry(
                 <SectionLabel>Valor ({trip.currency})</SectionLabel>
                 <input
                   class={`${inputClass} tabular`}
-                  placeholder="0.00"
+                  placeholder="0,00"
                   inputMode="decimal"
                   defaultValue={state.amountText}
                   mix={on('input', (event) => {
                     state.amountText = (
                       event.currentTarget as HTMLInputElement
                     ).value
+                    fieldErrors = { ...fieldErrors, amount: undefined }
                     handle.update()
                   })}
                 />
+                {fieldErrors.amount ? (
+                  <p class="mono-caption mt-2 text-red">{fieldErrors.amount}</p>
+                ) : null}
               </div>
               <div>
                 <SectionLabel>Quando</SectionLabel>
@@ -362,6 +400,7 @@ export const ExpenseFormScreen = clientEntry(
                         }`}
                         mix={on('click', () => {
                           state.splitMode = mode
+                          fieldErrors = { ...fieldErrors, split: undefined }
                           handle.update()
                         })}
                       >
@@ -383,11 +422,15 @@ export const ExpenseFormScreen = clientEntry(
                         } else {
                           state.splitWith.add(member.id)
                         }
+                        fieldErrors = { ...fieldErrors, split: undefined }
                         handle.update()
                       }}
                     />
                   ))}
                 </div>
+                {fieldErrors.split ? (
+                  <p class="mono-caption mt-2 text-red">{fieldErrors.split}</p>
+                ) : null}
                 <p class="mono-caption mt-2 text-faint">
                   Deixe quem pagou de fora para virar um empréstimo.
                 </p>
@@ -424,7 +467,7 @@ export const ExpenseFormScreen = clientEntry(
                         </span>
                         <input
                           class={`${inputClass} tabular`}
-                          placeholder="0.00"
+                          placeholder="0,00"
                           inputMode="decimal"
                           defaultValue={
                             state.customAmounts.get(member.id) ?? ''
@@ -434,6 +477,7 @@ export const ExpenseFormScreen = clientEntry(
                               member.id,
                               (event.currentTarget as HTMLInputElement).value
                             )
+                            fieldErrors = { ...fieldErrors, split: undefined }
                             handle.update()
                           })}
                         />
