@@ -83,6 +83,12 @@ export const JoinScreen = clientEntry(
       const canvas = document.createElement('canvas')
       const context = canvas.getContext('2d', { willReadFrequently: true })
 
+      if (!navigator.mediaDevices?.getUserMedia) {
+        status = 'blocked'
+        handle.update()
+        return
+      }
+
       navigator.mediaDevices
         .getUserMedia({ video: { facingMode: 'environment' } })
         .then((mediaStream) => {
@@ -210,8 +216,9 @@ export const JoinScreen = clientEntry(
               <p class="text-[24px]">📷</p>
               <p class="mt-3 text-[17px] font-semibold">Camera unavailable</p>
               <p class="mono-caption mx-auto mt-2 max-w-sm text-muted">
-                Allow camera access for this site in your browser settings and
-                reload the page.
+                {window.isSecureContext
+                  ? 'Allow camera access for this site in your browser settings and reload the page.'
+                  : "You're viewing the app over an insecure (http) address, and browsers only allow the camera on https. Open the app's https address and try again."}
               </p>
             </div>
           ) : (
