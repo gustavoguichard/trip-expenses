@@ -2,6 +2,8 @@ import type { Handle, RemixNode } from 'remix/ui'
 
 import { routes } from '../routes.ts'
 
+const serviceWorkerRegistration = `if ('serviceWorker' in navigator && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') navigator.serviceWorker.register('/service-worker.js')`
+
 export type DocumentProps = {
   children?: RemixNode
   title?: string
@@ -55,6 +57,7 @@ export function Document(handle: Handle<DocumentProps>) {
             type="module"
             src={routes.assets.href({ path: 'app/assets/entry.ts' })}
           />
+          <script innerHTML={serviceWorkerRegistration} />
         </body>
       </html>
     )

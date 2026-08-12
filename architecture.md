@@ -50,3 +50,5 @@ Tailwind CSS v4, dark-only. Source `app/ui/styles.css` (`@theme` tokens + `@font
 ## Deployment
 
 `vercel.json` in `apps/web` rewrites everything to `api/index.ts` (a web-standard `Request → Response` handler around `router.fetch`); static files in `public/` are served by the CDN first. `buildCommand` runs `css:build`. Any Node ≥ 24.3 host also works: `pnpm run build && pnpm run start`. The first Vercel deploy should be smoke-tested — the Remix 3 beta compiles browser assets at runtime inside the function.
+
+The app is installable as a PWA: `public/manifest.webmanifest` (standalone display, #0B0A08 theme) plus PNG icons rendered from the favicon mark (`apple-touch-icon.png` 180, `icon-192.png`, `icon-512.png`, `icon-512-maskable.png`). `public/service-worker.js` (version constant at the top — bump it on breaking changes) precaches the shell (`/`, styles, fonts, favicon, manifest) and serves navigations network-first with cache fallback and `/assets/*`, `/fonts/*`, `/styles.css` cache-first, so visited pages keep working offline. An inline script in `app/ui/document.tsx` registers it — skipped on `localhost`/`127.0.0.1` so dev is never affected by SW caching.

@@ -14,6 +14,7 @@ A free trip expense splitter anyone can use, forever, without accounts, servers,
 - **Charts tab per trip.** Stat tiles (total, per-day, days, biggest day), category bars, daily spending bars, and paid-vs-share per person.
 - **English UI, multi-currency.** One currency per trip, formatted with `Intl.NumberFormat`; amounts stored as integer cents; both `12.50` and `12,50` accepted on input.
 - **Hosting: Vercel** (or any Node host via `pnpm start`). No paid services anywhere in the stack.
+- **Installable PWA with an offline shell.** Manifest + icons make it a home-screen app; a service worker caches the shell and visited pages so the app works offline on the road (registration skips localhost).
 
 ## Boundaries (deliberately out, for now)
 
@@ -25,5 +26,4 @@ A free trip expense splitter anyone can use, forever, without accounts, servers,
 ## Later ideas
 
 - Export/import the whole document as a file (backup).
-- PWA install + offline shell caching.
 - Per-member colors in charts once more than two series are needed.
