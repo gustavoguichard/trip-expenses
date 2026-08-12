@@ -53,8 +53,9 @@ export const TripNewScreen = clientEntry(
   function TripNewScreen(handle: Handle) {
     let tripEmoji = '🏖️'
     let name = ''
-    let currency = 'USD'
+    let currency = 'BRL'
     let members: MemberDraft[] = [newDraft('😎')]
+    let pendingFocusKey = ''
     let error = ''
     let saving = false
 
@@ -134,18 +135,34 @@ export const TripNewScreen = clientEntry(
 
           <div>
             <SectionLabel>Currency</SectionLabel>
-            <select
-              class={`${inputClass} cursor-pointer`}
-              mix={on('change', (event) => {
-                currency = (event.currentTarget as HTMLSelectElement).value
-              })}
-            >
-              {currencies.map((code) => (
-                <option key={code} value={code} selected={code === currency}>
-                  {code}
-                </option>
-              ))}
-            </select>
+            <div class="relative">
+              <select
+                class={`${inputClass} cursor-pointer appearance-none pr-10`}
+                mix={on('change', (event) => {
+                  currency = (event.currentTarget as HTMLSelectElement).value
+                })}
+              >
+                {currencies.map((code) => (
+                  <option key={code} value={code} selected={code === currency}>
+                    {code}
+                  </option>
+                ))}
+              </select>
+              <svg
+                class="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-muted"
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentcolor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2.5 4.5 L6 8 L9.5 4.5" />
+              </svg>
+            </div>
           </div>
 
           <div>
@@ -171,12 +188,19 @@ export const TripNewScreen = clientEntry(
                     class={inputClass}
                     placeholder={index === 0 ? 'Your name' : 'Friend'}
                     defaultValue={member.name}
-                    mix={on('input', (event) => {
-                      members[index] = {
-                        ...member,
-                        name: (event.currentTarget as HTMLInputElement).value,
-                      }
-                    })}
+                    mix={[
+                      ref((node) => {
+                        if (member.key !== pendingFocusKey) return
+                        pendingFocusKey = ''
+                        ;(node as HTMLInputElement).focus()
+                      }),
+                      on('input', (event) => {
+                        members[index] = {
+                          ...member,
+                          name: (event.currentTarget as HTMLInputElement).value,
+                        }
+                      }),
+                    ]}
                   />
                   {members.length > 1 ? (
                     <button
@@ -201,7 +225,9 @@ export const TripNewScreen = clientEntry(
               type="button"
               class={`${buttonGhost} mt-3`}
               mix={on('click', () => {
-                members = [...members, newDraft(randomOf(emojiChoices))]
+                const draft = newDraft(randomOf(emojiChoices))
+                pendingFocusKey = draft.key
+                members = [...members, draft]
                 handle.update()
               })}
             >
