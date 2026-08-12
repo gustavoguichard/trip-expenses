@@ -25,8 +25,8 @@ It lives under the localStorage key `trip-expenses:document`, wrapped by `makeLo
 Every entity (trip, member, expense) carries the same spine, and every new entity must too:
 
 - **`id`** — `crypto.randomUUID()`, generated once at creation, validated as `z.uuid()`.
-- **`updatedAt`** — full ISO timestamp from `now()` in `store.common.ts`. **Bumped on every mutation of the entity**, no exceptions. This is the sync merge's clock: an entity whose `updatedAt` didn't move loses conflicts it should win.
-- **`deletedAt`** — ISO timestamp or `null`. **Deletion is always a tombstone**: set `deletedAt` (and `updatedAt`) to the same `now()` value; never splice the entity out of its array. Physical removal would resurrect the entity on the next QR merge — the other device still has it, and there would be no tombstone to outrank it.
+- **`updatedAt`** — a sortable stamp from `now()` in `store.common.ts`: a hybrid-logical-clock string `<ISO>~<counter>~<device-prefix>` that compares lexicographically, including against plain ISO stamps written by older versions (see the `qr-sync` skill). **Bumped on every mutation of the entity**, no exceptions. This is the sync merge's clock: an entity whose `updatedAt` didn't move loses conflicts it should win.
+- **`deletedAt`** — a stamp (same shape) or `null`. **Deletion is always a tombstone**: set `deletedAt` (and `updatedAt`) to the same `now()` value; never splice the entity out of its array. Physical removal would resurrect the entity on the next QR merge — the other device still has it, and there would be no tombstone to outrank it.
 
 Reads go through the `isActive`/`activeTrips`/`activeMembers`/`activeExpenses` helpers so tombstoned entities stay invisible to the product while remaining in the document for sync.
 

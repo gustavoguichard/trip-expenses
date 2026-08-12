@@ -12,7 +12,7 @@ All temporal values are **strings** with a fixed shape, and all user-facing form
 Two string shapes, enforced by the document schema (`app/business/store.common.ts`):
 
 - **Calendar days** — `YYYY-MM-DD` (`z.iso.date()`). An expense's `date` is a calendar day with no time and no timezone: "the boat trip was on Aug 10" is true everywhere on Earth. `today()` in `money.ts` builds it from the device's local clock — the user's "today", not UTC's.
-- **Timestamps** — full ISO datetime (`z.iso.datetime()`): `updatedAt` and `deletedAt` on every entity, always produced by `now()` from `store.common.ts` (`new Date().toISOString()`). These are machine values that drive sync merges; users never see them.
+- **Timestamps** — hybrid-logical-clock stamps (`timestampSchema`): `updatedAt` and `deletedAt` on every entity, always produced by `now()` from `store.common.ts` as `<ISO>~<counter>~<device-prefix>`; plain ISO stamps from older versions remain valid and comparable (see the `qr-sync` skill). These are machine values that drive sync merges; users never see them. Compare them with plain `>=`/`>` string operators, never `localeCompare` (locale collation may ignore the `~`) and never `new Date(stamp)` (the suffix breaks parsing).
 
 Never store a `Date` instance, epoch millis, or a locale-formatted string in the document.
 

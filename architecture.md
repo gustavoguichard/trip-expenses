@@ -11,33 +11,36 @@ All routes are GET shells (`app/routes.ts`): home `/`, `/join`, `/trips/new`, an
 The entire user state is one Zod-validated document in localStorage under `trip-expenses:document`:
 
 ```
-{ version: 1, trips: [ { id, name, emoji, currency, updatedAt, deletedAt,
+{ version: 1, trips: [ { id, name, emoji, currency, fieldStamps?, updatedAt, deletedAt,
     members: [ { id, name, emoji, deviceIds[], updatedAt, deletedAt } ],
     expenses: [ { id, description, categoryId, amountCents, date, paidBy,
                   shares: [{ memberId, amountCents }], kind: expense|settlement,
                   updatedAt, deletedAt } ] } ] }
 ```
 
-`trip-expenses:device` holds this device's uuid. A member whose `deviceIds` contains it is "me" on that trip (`myMember`).
+`trip-expenses:device` holds this device's uuid. A member whose `deviceIds` contains it is "me" on that trip (`myMember`). `trip-expenses:shared` is device-local sync metadata (never part of the document): a tripId → timestamp map of when this device last showed the trip to someone.
 
-- Schema + helpers: `app/business/store.common.ts` (`documentSchema`, `findTrip`, `activeTrips/Members/Expenses`, `replaceTrip`, `now`).
+- Schema + helpers: `app/business/store.common.ts` (`documentSchema`, `findTrip`, `activeTrips/Members/Expenses`, `replaceTrip`, `now`). Timestamps are hybrid-logical-clock stamps, `<ISO>~<counter>~<device-prefix>` (see Sync); `timestampSchema` still accepts plain ISO stamps written by older versions, and `fieldStamps` (`{ name?, emoji?, currency? }`, written by `updateTrip`) is additive-optional so pre-existing documents parse unchanged.
 - Mutations: `app/business/trips.common.ts` (create/update/delete trip, add/update/remove/claim member) and `app/business/expenses.common.ts` (add/update/delete expense, `addSettlement`, `equalShares`, `parseAmount`) — all `applySchema(input, documentContextSchema)` composables returning the next document. Removal of a member is blocked while they appear in any active expense.
 - Derived data: `app/business/balances.common.ts` — `memberBalances` (paid − shares), `simplifyDebts` (greedy largest-debtor→largest-creditor matching), `tripTotal`, `totalsByCategory/Day/Member` (settlements excluded from spending totals).
 - Categories: `app/business/categories.common.ts` (7 spending categories + reserved `settlement`).
 
 ## Client layer
 
-`app/assets/store.ts` glues screens to storage: `documentStore` (built on `framework/local-store.ts`), `deviceId()`, `bindDocument(handle)` (returns `ready()/document()/mount`, where `mount` is a `ref` mixin that loads after hydration — SSR and first client render always show the skeleton, keeping hydration deterministic), and `mutateDocument(fn, input)` (runs a composable against the current document, persists on success, returns first error message on failure).
+`app/assets/store.ts` glues screens to storage: `documentStore` (built on `framework/local-store.ts`), `deviceId()`, `bindDocument(handle)` (returns `ready()/document()/mount`, where `mount` is a `ref` mixin that loads after hydration — SSR and first client render always show the skeleton, keeping hydration deterministic), and `mutateDocument(fn, input)` (runs a composable against the current document, persists on success, returns first error message on failure). It also calls `configureClock(deviceId())` at module load in the browser and owns the share-stamp store (`stampShare`/`lastSharedAt` over `trip-expenses:shared`).
 
 Screens (`app/assets/*-screen.tsx`, all `clientEntry`): trips list, trip-new, expenses, expense-form (add/edit, equal or custom split, delete), balances (bars + settle-up suggestions with one-tap "mark paid"), charts, members (add/remove/claim/invite/delete trip), invite (QR), join (scanner). Shared chrome: `trip-chrome.tsx` (trip header + tab bar + missing/loading states), `widgets.tsx` (Avatar, EmojiPicker, button/input class constants), `money.ts` (`formatCents`, `formatDay`, `today`). Text inputs are uncontrolled (`defaultValue` + `on('input')`).
 
-## Sync over QR
+## Sync
 
 - `app/framework/sync-codec.ts`: `compress`/`decompress` (deflate + base64url via CompressionStream) and the chunk codec `toChunks(prefix, payload, 400)` ↔ `makeChunkCollector(prefix)` with `PREFIX:i/n:data` frames.
-- `app/business/sync.common.ts`: `makeInvitePayload(trip, inviteMemberId|null)` / `parseInvitePayload`, `mergeTrip` (newer `updatedAt` wins per entity; members union `deviceIds`; expenses union by id), `importTrip` (add or merge into the document).
-- Invite screen: payload → compress → chunks → `uqr` `renderSVG`, cycling frames every 400ms when chunked; member picker decides who the scanner becomes (self = second own device; none = data-only share).
-- Join screen: `getUserMedia` → canvas → `qr/decode.js` (`decodeQR`) per frame → collector → decompress → preview card → import + claim (claims only when the device has no member on that trip yet). Camera-denied state degrades to instructions.
+- `app/business/sync.common.ts`: `makeInvitePayload(trip, inviteMemberId|null)` / `parseInvitePayload`, the `#s=` link-fragment helpers (`inviteLinkHash`/`encodedFromLinkHash`), `mergeTrip`, `importTrip` (add or merge into the document, feeding incoming stamps into the clock), and `unsharedChanges(trip, lastSharedAt)` (counts entities newer than the device's last share; a never-shared trip counts everything once it has expenses).
+- Merge semantics: entities (members, expenses) union by id, newer `updatedAt` wins, members union `deviceIds`, deletions travel as tombstones. Trip scalars are per-field LWW: each of name/emoji/currency resolves through its `fieldStamps` entry, falling back to the trip's `updatedAt` for documents/peers that never wrote stamps — a concurrent rename and currency change both survive.
+- Clocks: `now()` in `store.common.ts` is a hybrid logical clock emitting `<ISO>~<counter>~<device-prefix>` (ISO = max(wall, last seen); zero-padded counter bumps while wall time stands still; device prefix breaks ties). `~` sorts after every ISO character, so new stamps compare correctly against plain ISO stamps from old versions with the same string comparison. `configureClock(deviceId)` is called at boot in `app/assets/store.ts`; document loads and `importTrip` feed observed stamps back via `observeStamp`, so a device with a slow wall clock still outranks stamps it has seen.
+- QR transport: invite screen compresses the payload → `toChunks('TRIPX1', …, 700)` → `uqr` `renderSVG`, cycling frames when chunked; the member picker decides who the scanner becomes (self = second own device; none = data-only share). Join screen: `getUserMedia` → canvas → `qr/decode.js` (`decodeQR`) per frame → collector → decompress → preview card → import + claim (claims only when the device has no member on that trip yet). Camera-denied state degrades to instructions.
 - Link transport: the same compressed payload rides `https://<origin>/join#s=<payload>` — single payload, no chunk framing, no `TRIPX1` prefix; the fragment never reaches the server. Invite screen shares it via `navigator.share` (clipboard + "Link copiado" fallback) and warns past ~6000 chars; join screen reads `location.hash` on mount, skips the camera, and reuses the same preview/import/claim flow, clearing the hash with `history.replaceState` after import (corrupt fragments fall back to the camera).
+- Share stamps + badge: showing the QR or sharing the link stamps `trip-expenses:shared` (`stampShare`/`lastSharedAt` in `app/assets/store.ts`); importing never stamps. `UnsharedBadge` (`trip-chrome.tsx`) renders the quiet "N alterações não compartilhadas" caption on the home trip card and under the trip header.
+- Two-way ritual: after a successful import the join screen shows an interstitial — "Mostrar meu código" links to the trip's invite screen (stamping the share on the joining device), "Ir para a viagem" skips in one tap.
 - Both QR libraries are pure ESM — a hard requirement, since the Remix asset server refuses CommonJS modules.
 
 ## Styling
@@ -46,7 +49,7 @@ Tailwind CSS v4, dark-only. Source `app/ui/styles.css` (`@theme` tokens + `@font
 
 ## Tests & gates
 
-35 Vitest unit tests colocated in `app/business/` and `app/framework/` (no global setup, no browser emulation — the domain is pure). Gates: Biome (warnings fail), `tsc --noEmit`, Vitest — wired into `.githooks/pre-push` and `.github/workflows/ci.yml`.
+59 Vitest unit tests colocated in `app/business/`, `app/framework/`, and `app/assets/` (no global setup, no browser emulation — the domain is pure). Gates: Biome (warnings fail), `tsc --noEmit`, Vitest — wired into `.githooks/pre-push` and `.github/workflows/ci.yml`.
 
 ## Deployment
 
