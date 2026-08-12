@@ -2,8 +2,10 @@ import type { Handle } from 'remix/ui'
 
 import { tripTotal } from '../business/balances.common.ts'
 import { activeMembers, type Trip } from '../business/store.common.ts'
+import { unsharedChanges } from '../business/sync.common.ts'
 import { routes } from '../routes.ts'
 import { formatCents } from './money.ts'
+import { lastSharedAt } from './store.ts'
 
 type TabKey = 'expenses' | 'balances' | 'charts' | 'people'
 
@@ -19,6 +21,21 @@ function tabHref(tab: TabKey, tripId: string) {
   if (tab === 'charts') return routes.trips.charts.href({ tripId })
   if (tab === 'people') return routes.trips.members.href({ tripId })
   return routes.trips.show.href({ tripId })
+}
+
+function UnsharedBadge(handle: Handle<{ trip: Trip }>) {
+  return () => {
+    const { trip } = handle.props
+    const count = unsharedChanges(trip, lastSharedAt(trip.id))
+    if (count === 0) return null
+    return (
+      <span class="mono-caption mt-0.5 block text-faint">
+        {count === 1
+          ? '1 alteração não compartilhada'
+          : `${count} alterações não compartilhadas`}
+      </span>
+    )
+  }
 }
 
 function TripChrome(handle: Handle<{ trip: Trip; active: TabKey }>) {
@@ -49,6 +66,7 @@ function TripChrome(handle: Handle<{ trip: Trip; active: TabKey }>) {
               {' · '}
               {members.length} {members.length === 1 ? 'pessoa' : 'pessoas'}
             </p>
+            <UnsharedBadge trip={trip} />
           </div>
           <a
             href={routes.trips.invite.href({ tripId: trip.id })}
@@ -121,4 +139,4 @@ function Loading() {
 }
 
 export type { TabKey }
-export { Loading, TripChrome, TripMissing }
+export { Loading, TripChrome, TripMissing, UnsharedBadge }

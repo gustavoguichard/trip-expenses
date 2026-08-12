@@ -44,6 +44,14 @@ function encodedFromLinkHash(hash: string) {
     : null
 }
 
+function unsharedChanges(trip: Trip, lastSharedAt: string | null) {
+  const entities = [trip, ...trip.members, ...trip.expenses]
+  if (lastSharedAt === null) {
+    return trip.expenses.length === 0 ? 0 : entities.length
+  }
+  return entities.filter((entity) => entity.updatedAt > lastSharedAt).length
+}
+
 const newer = <Entity extends { updatedAt: string }>(a: Entity, b: Entity) =>
   a.updatedAt >= b.updatedAt ? a : b
 
@@ -103,4 +111,5 @@ export {
   makeInvitePayload,
   mergeTrip,
   parseInvitePayload,
+  unsharedChanges,
 }

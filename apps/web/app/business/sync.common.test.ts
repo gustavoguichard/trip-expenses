@@ -12,6 +12,7 @@ import {
   makeInvitePayload,
   mergeTrip,
   parseInvitePayload,
+  unsharedChanges,
 } from './sync.common.ts'
 import { claimMember, updateTrip } from './trips.common.ts'
 
@@ -164,6 +165,93 @@ describe('mergeTrip', () => {
     )
     const member = activeMembers(merged).find((m) => m.id === guga.id)
     expect(member?.deviceIds.sort()).toEqual(['phone', 'tablet'])
+  })
+})
+
+describe('unsharedChanges', () => {
+  it('stays quiet for a never-shared trip without expenses', async () => {
+    const { trip } = await seedTrip()
+    expect(unsharedChanges(trip, null)).toBe(0)
+  })
+
+  it('counts everything once a never-shared trip has expenses', async () => {
+    const { document, trip, guga, ana } = await seedTrip()
+    const added = await fromSuccess(addExpense)(
+      {
+        tripId: trip.id,
+        description: 'Jantar',
+        categoryId: 'food',
+        amountCents: 3000,
+        date: '2026-08-10',
+        paidBy: guga.id,
+        shares: equalShares(3000, [guga.id, ana.id]),
+      },
+      { document }
+    )
+    const withExpense = tripOf(added.document, trip.id)
+    expect(unsharedChanges(withExpense, null)).toBe(5)
+  })
+
+  it('counts only entities newer than the share stamp', async () => {
+    const { document, trip, guga, ana } = await seedTrip()
+    const sharedAt = trip.updatedAt
+    expect(unsharedChanges(trip, sharedAt)).toBe(0)
+
+    const added = await fromSuccess(addExpense)(
+      {
+        tripId: trip.id,
+        description: 'Jantar',
+        categoryId: 'food',
+        amountCents: 3000,
+        date: '2026-08-10',
+        paidBy: guga.id,
+        shares: equalShares(3000, [guga.id, ana.id]),
+      },
+      { document }
+    )
+    const edited = tripOf(added.document, trip.id)
+    const bumped = {
+      ...edited,
+      updatedAt: later(sharedAt),
+      expenses: edited.expenses.map((expense) => ({
+        ...expense,
+        updatedAt: later(sharedAt),
+      })),
+    }
+    expect(unsharedChanges(bumped, sharedAt)).toBe(2)
+  })
+
+  it('counts a deletion as an unshared change', async () => {
+    const { document, trip, guga, ana } = await seedTrip()
+    const added = await fromSuccess(addExpense)(
+      {
+        tripId: trip.id,
+        description: 'Jantar',
+        categoryId: 'food',
+        amountCents: 3000,
+        date: '2026-08-10',
+        paidBy: guga.id,
+        shares: equalShares(3000, [guga.id, ana.id]),
+      },
+      { document }
+    )
+    const sharedAt = tripOf(added.document, trip.id).updatedAt
+
+    const deleted = await fromSuccess(deleteExpense)(
+      { tripId: trip.id, expenseId: added.expenseId },
+      { document: added.document }
+    )
+    const afterDelete = tripOf(deleted.document, trip.id)
+    const tombstoned = {
+      ...afterDelete,
+      updatedAt: later(sharedAt),
+      expenses: afterDelete.expenses.map((expense) => ({
+        ...expense,
+        updatedAt: later(sharedAt),
+        deletedAt: later(sharedAt),
+      })),
+    }
+    expect(unsharedChanges(tombstoned, sharedAt)).toBe(2)
   })
 })
 

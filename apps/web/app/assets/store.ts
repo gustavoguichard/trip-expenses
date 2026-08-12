@@ -1,9 +1,11 @@
 import { ref } from 'remix/ui'
+import { z } from 'zod'
 
 import {
   documentSchema,
   emptyDocument,
   newId,
+  now,
   type TripDocument,
 } from '../business/store.common.ts'
 import { makeLocalStore } from '../framework/local-store.ts'
@@ -16,6 +18,25 @@ const documentStore = makeLocalStore<TripDocument>({
   },
   empty: emptyDocument,
 })
+
+const shareStampsSchema = z.record(z.string(), z.string())
+
+const shareStampsStore = makeLocalStore<Record<string, string>>({
+  key: 'trip-expenses:shared',
+  parse: (raw) => {
+    const result = shareStampsSchema.safeParse(raw)
+    return result.success ? result.data : null
+  },
+  empty: () => ({}),
+})
+
+function lastSharedAt(tripId: string) {
+  return shareStampsStore.load()[tripId] ?? null
+}
+
+function stampShare(tripId: string) {
+  shareStampsStore.update((stamps) => ({ ...stamps, [tripId]: now() }))
+}
 
 function deviceId() {
   const key = 'trip-expenses:device'
@@ -74,4 +95,11 @@ async function mutateDocument<Data extends { document: TripDocument }>(
   return { data: result.data, error: null }
 }
 
-export { bindDocument, deviceId, documentStore, mutateDocument }
+export {
+  bindDocument,
+  deviceId,
+  documentStore,
+  lastSharedAt,
+  mutateDocument,
+  stampShare,
+}

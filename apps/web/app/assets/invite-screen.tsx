@@ -7,7 +7,7 @@ import { inviteLinkHash, makeInvitePayload } from '../business/sync.common.ts'
 import { myMember } from '../business/trips.common.ts'
 import { compress, toChunks } from '../framework/sync-codec.ts'
 import { routes } from '../routes.ts'
-import { bindDocument, deviceId } from './store.ts'
+import { bindDocument, deviceId, stampShare } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
 import { Avatar, buttonPrimary, SectionLabel } from './widgets.tsx'
 
@@ -35,14 +35,18 @@ export const InviteScreen = clientEntry(
       if (copiedTimer) clearTimeout(copiedTimer)
     })
 
-    async function shareLink() {
+    async function shareLink(trip: Trip) {
       if (!linkEncoded) return
       const url = `${location.origin}${routes.join.href()}${inviteLinkHash(linkEncoded)}`
       if (typeof navigator.share === 'function') {
-        await navigator.share({ url }).catch(() => {})
+        await navigator
+          .share({ url })
+          .then(() => stampShare(trip.id))
+          .catch(() => {})
         return
       }
       await navigator.clipboard.writeText(url)
+      stampShare(trip.id)
       copied = true
       handle.update()
       if (copiedTimer) clearTimeout(copiedTimer)
@@ -83,6 +87,7 @@ export const InviteScreen = clientEntry(
         }
         await handle.update()
         paint()
+        stampShare(trip.id)
       } catch (exception) {
         if (current !== generation) return
         qrError =
@@ -207,7 +212,7 @@ export const InviteScreen = clientEntry(
                   type="button"
                   class={`${buttonPrimary} mt-5 w-full max-w-[320px]`}
                   disabled={!linkEncoded}
-                  mix={on('click', shareLink)}
+                  mix={on('click', () => shareLink(trip))}
                 >
                   {copied ? 'Link copiado' : 'Compartilhar link'}
                 </button>

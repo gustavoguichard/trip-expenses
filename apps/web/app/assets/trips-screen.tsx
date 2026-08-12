@@ -10,7 +10,7 @@ import {
 import { routes } from '../routes.ts'
 import { formatCents } from './money.ts'
 import { bindDocument } from './store.ts'
-import { Loading } from './trip-chrome.tsx'
+import { Loading, UnsharedBadge } from './trip-chrome.tsx'
 import { Avatar, buttonGhost, buttonPrimary } from './widgets.tsx'
 
 function TripCard(handle: Handle<{ trip: Trip }>) {
@@ -46,6 +46,7 @@ function TripCard(handle: Handle<{ trip: Trip }>) {
               </span>
             ) : null}
           </span>
+          <UnsharedBadge trip={trip} />
         </span>
         <span class="text-right">
           <span class="tabular block text-[15px] font-semibold text-amber">
