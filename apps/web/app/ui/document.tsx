@@ -15,10 +15,46 @@ const serviceWorkerRegistration = `if ('serviceWorker' in navigator && location.
 
 const appleStartupImages = [
   {
+    deviceWidth: 440,
+    deviceHeight: 956,
+    pixelRatio: 3,
+    href: '/splash/1320x2868.png',
+  },
+  {
     deviceWidth: 430,
     deviceHeight: 932,
     pixelRatio: 3,
     href: '/splash/1290x2796.png',
+  },
+  {
+    deviceWidth: 428,
+    deviceHeight: 926,
+    pixelRatio: 3,
+    href: '/splash/1284x2778.png',
+  },
+  {
+    deviceWidth: 414,
+    deviceHeight: 896,
+    pixelRatio: 3,
+    href: '/splash/1242x2688.png',
+  },
+  {
+    deviceWidth: 414,
+    deviceHeight: 896,
+    pixelRatio: 2,
+    href: '/splash/828x1792.png',
+  },
+  {
+    deviceWidth: 414,
+    deviceHeight: 736,
+    pixelRatio: 3,
+    href: '/splash/1242x2208.png',
+  },
+  {
+    deviceWidth: 402,
+    deviceHeight: 874,
+    pixelRatio: 3,
+    href: '/splash/1206x2622.png',
   },
   {
     deviceWidth: 393,
@@ -33,16 +69,22 @@ const appleStartupImages = [
     href: '/splash/1170x2532.png',
   },
   {
-    deviceWidth: 414,
-    deviceHeight: 896,
-    pixelRatio: 2,
-    href: '/splash/828x1792.png',
+    deviceWidth: 375,
+    deviceHeight: 812,
+    pixelRatio: 3,
+    href: '/splash/1125x2436.png',
   },
   {
     deviceWidth: 375,
     deviceHeight: 667,
     pixelRatio: 2,
     href: '/splash/750x1334.png',
+  },
+  {
+    deviceWidth: 320,
+    deviceHeight: 568,
+    pixelRatio: 2,
+    href: '/splash/640x1136.png',
   },
 ]
 
