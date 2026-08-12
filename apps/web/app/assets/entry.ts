@@ -1,5 +1,8 @@
 import { run } from 'remix/ui'
 
+import { warmOfflineCache } from './offline.ts'
+import { documentStore } from './store.ts'
+
 const app = run({
   async loadModule(moduleUrl, exportName) {
     const mod = await import(moduleUrl)
@@ -22,3 +25,13 @@ const app = run({
 app.addEventListener('error', (event) => {
   console.error('Component error:', event.error)
 })
+
+let warmingTimer: ReturnType<typeof setTimeout> | undefined
+
+function scheduleOfflineCacheWarming() {
+  clearTimeout(warmingTimer)
+  warmingTimer = setTimeout(() => warmOfflineCache(documentStore.load()), 2000)
+}
+
+documentStore.subscribe(scheduleOfflineCacheWarming)
+scheduleOfflineCacheWarming()

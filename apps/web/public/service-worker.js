@@ -37,6 +37,33 @@ self.addEventListener('activate', (event) => {
   )
 })
 
+const warmedUrlLimit = 200
+
+async function warmRoutes(urls) {
+  const cache = await caches.open(cacheName)
+  const unique = [...new Set(urls)]
+    .filter((url) => typeof url === 'string')
+    .slice(0, warmedUrlLimit)
+  await Promise.all(
+    unique.map(async (url) => {
+      try {
+        const target = new URL(url, location.origin)
+        if (target.origin !== location.origin) return
+        const response = await fetch(target.href, {
+          headers: { Accept: 'text/html' },
+        })
+        if (response.ok) await cache.put(target.href, response)
+      } catch {}
+    })
+  )
+}
+
+self.addEventListener('message', (event) => {
+  const { data } = event
+  if (data?.type !== 'warm-routes' || !Array.isArray(data.urls)) return
+  event.waitUntil(warmRoutes(data.urls))
+})
+
 async function networkFirst(request) {
   const cache = await caches.open(cacheName)
   try {
