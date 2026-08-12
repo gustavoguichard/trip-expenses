@@ -1,0 +1,92 @@
+import { z } from 'zod'
+
+import {
+  type Expense,
+  type Member,
+  type Trip,
+  type TripDocument,
+  tripSchema,
+} from './store.common.ts'
+
+const invitePayloadSchema = z.object({
+  kind: z.literal('trip'),
+  trip: tripSchema,
+  inviteMemberId: z.uuid().nullable(),
+})
+
+type InvitePayload = z.infer<typeof invitePayloadSchema>
+
+function makeInvitePayload(
+  trip: Trip,
+  inviteMemberId: string | null
+): InvitePayload {
+  return { kind: 'trip', trip, inviteMemberId }
+}
+
+function parseInvitePayload(raw: string) {
+  try {
+    const parsed = invitePayloadSchema.safeParse(JSON.parse(raw))
+    return parsed.success ? parsed.data : null
+  } catch {
+    return null
+  }
+}
+
+const newer = <Entity extends { updatedAt: string }>(a: Entity, b: Entity) =>
+  a.updatedAt >= b.updatedAt ? a : b
+
+function mergeMembers(mine: Member[], theirs: Member[]) {
+  return mergeById(mine, theirs, (a, b) => {
+    const winner = newer(a, b)
+    const deviceIds = [...new Set([...a.deviceIds, ...b.deviceIds])]
+    return { ...winner, deviceIds }
+  })
+}
+
+function mergeExpenses(mine: Expense[], theirs: Expense[]) {
+  return mergeById(mine, theirs, newer)
+}
+
+function mergeById<Entity extends { id: string; updatedAt: string }>(
+  mine: Entity[],
+  theirs: Entity[],
+  resolve: (a: Entity, b: Entity) => Entity
+) {
+  const merged = new Map(mine.map((entity) => [entity.id, entity]))
+  for (const entity of theirs) {
+    const existing = merged.get(entity.id)
+    merged.set(entity.id, existing ? resolve(existing, entity) : entity)
+  }
+  return [...merged.values()]
+}
+
+function mergeTrip(mine: Trip, theirs: Trip): Trip {
+  const winner = newer(mine, theirs)
+  return {
+    ...winner,
+    members: mergeMembers(mine.members, theirs.members),
+    expenses: mergeExpenses(mine.expenses, theirs.expenses),
+  }
+}
+
+function importTrip(document: TripDocument, incoming: Trip): TripDocument {
+  const existing = document.trips.find((trip) => trip.id === incoming.id)
+  if (!existing) {
+    return { ...document, trips: [...document.trips, incoming] }
+  }
+  return {
+    ...document,
+    trips: document.trips.map((trip) =>
+      trip.id === incoming.id ? mergeTrip(trip, incoming) : trip
+    ),
+  }
+}
+
+export type { InvitePayload }
+export {
+  importTrip,
+  invitePayloadSchema,
+  makeInvitePayload,
+  mergeTrip,
+  parseInvitePayload,
+}
