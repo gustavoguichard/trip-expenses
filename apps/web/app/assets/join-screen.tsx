@@ -1,7 +1,7 @@
 import { decodeQR } from 'qr/decode.js'
 
 import type { Handle } from 'remix/ui'
-import { clientEntry, navigate, on, ref } from 'remix/ui'
+import { clientEntry, on, ref } from 'remix/ui'
 
 import { activeExpenses, activeMembers } from '../business/store.common.ts'
 import {
@@ -20,7 +20,7 @@ import {
   mutateDocument,
 } from './store.ts'
 import { Loading } from './trip-chrome.tsx'
-import { Avatar, buttonPrimary, ErrorNote } from './widgets.tsx'
+import { Avatar, buttonGhost, buttonPrimary, ErrorNote } from './widgets.tsx'
 
 const chunkPrefix = 'TRIPX1'
 
@@ -44,9 +44,8 @@ export const JoinScreen = clientEntry(
       typeof location === 'undefined'
         ? null
         : encodedFromLinkHash(location.hash)
-    let status: 'scanning' | 'opening' | 'found' | 'blocked' = linkEncoded
-      ? 'opening'
-      : 'scanning'
+    let status: 'scanning' | 'opening' | 'found' | 'imported' | 'blocked' =
+      linkEncoded ? 'opening' : 'scanning'
     let progress = ''
     let error = ''
     let payload: InvitePayload | null = null
@@ -164,7 +163,8 @@ export const JoinScreen = clientEntry(
         })
       }
       clearLinkHash()
-      navigate(routes.trips.show.href({ tripId: payload.trip.id }))
+      status = 'imported'
+      handle.update()
     }
 
     return () => {
@@ -183,6 +183,42 @@ export const JoinScreen = clientEntry(
               Abrindo o convite
             </h1>
             <Loading />
+          </div>
+        )
+      }
+
+      if (status === 'imported' && payload) {
+        const trip = payload.trip
+        return (
+          <div mix={data.mount}>
+            <h1 class="mb-6 text-[22px] font-bold tracking-tight">
+              Viagem adicionada
+            </h1>
+            <div class="rounded-2xl border border-line bg-panel p-5">
+              <div class="flex items-center gap-4">
+                <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-line-bright bg-raised text-[26px]">
+                  {trip.emoji}
+                </span>
+                <p class="text-[18px] font-bold tracking-tight">{trip.name}</p>
+              </div>
+              <p class="mono-caption mt-4 text-muted">
+                A viagem já está neste aparelho. Agora mostre o seu código para
+                quem te convidou — assim o que você lançar por aqui chega no
+                aparelho da outra pessoa também.
+              </p>
+              <a
+                href={routes.trips.invite.href({ tripId: trip.id })}
+                class={`${buttonPrimary} mt-5 w-full`}
+              >
+                Mostrar meu código
+              </a>
+              <a
+                href={routes.trips.show.href({ tripId: trip.id })}
+                class={`${buttonGhost} mt-3 w-full`}
+              >
+                Ir para a viagem
+              </a>
+            </div>
           </div>
         )
       }
