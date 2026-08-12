@@ -33,7 +33,7 @@ Screens (`app/assets/*-screen.tsx`, all `clientEntry`): trips list, trip-new, ex
 
 ## Sync over QR
 
-- `app/framework/sync-codec.ts`: `compress`/`decompress` (deflate-raw + base64url via CompressionStream) and the chunk codec `toChunks(prefix, payload, 400)` ↔ `makeChunkCollector(prefix)` with `PREFIX:i/n:data` frames.
+- `app/framework/sync-codec.ts`: `compress`/`decompress` (deflate + base64url via CompressionStream) and the chunk codec `toChunks(prefix, payload, 400)` ↔ `makeChunkCollector(prefix)` with `PREFIX:i/n:data` frames.
 - `app/business/sync.common.ts`: `makeInvitePayload(trip, inviteMemberId|null)` / `parseInvitePayload`, `mergeTrip` (newer `updatedAt` wins per entity; members union `deviceIds`; expenses union by id), `importTrip` (add or merge into the document).
 - Invite screen: payload → compress → chunks → `uqr` `renderSVG`, cycling frames every 400ms when chunked; member picker decides who the scanner becomes (self = second own device; none = data-only share).
 - Join screen: `getUserMedia` → canvas → `qr/decode.js` (`decodeQR`) per frame → collector → decompress → preview card → import + claim (claims only when the device has no member on that trip yet). Camera-denied state degrades to instructions.

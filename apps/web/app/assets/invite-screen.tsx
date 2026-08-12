@@ -18,6 +18,7 @@ export const InviteScreen = clientEntry(
     const data = bindDocument(handle)
     let inviteMemberId: string | null = null
     let chunks: string[] = []
+    let qrError = ''
     let frame = 0
     let generation = 0
     let qrNode: HTMLElement | null = null
@@ -42,20 +43,30 @@ export const InviteScreen = clientEntry(
 
     async function regenerate(trip: Trip) {
       const current = ++generation
-      const payload = JSON.stringify(makeInvitePayload(trip, inviteMemberId))
-      const encoded = await compress(payload)
-      if (current !== generation) return
-      chunks = toChunks(chunkPrefix, encoded, 700)
-      frame = 0
-      if (interval) clearInterval(interval)
-      if (chunks.length > 1) {
-        interval = setInterval(() => {
-          frame += 1
-          paint()
-        }, 800)
+      try {
+        const payload = JSON.stringify(makeInvitePayload(trip, inviteMemberId))
+        const encoded = await compress(payload)
+        if (current !== generation) return
+        qrError = ''
+        chunks = toChunks(chunkPrefix, encoded, 700)
+        frame = 0
+        if (interval) clearInterval(interval)
+        if (chunks.length > 1) {
+          interval = setInterval(() => {
+            frame += 1
+            paint()
+          }, 800)
+        }
+        handle.update()
+        paint()
+      } catch (exception) {
+        if (current !== generation) return
+        qrError =
+          exception instanceof Error ? exception.message : String(exception)
+        chunks = []
+        if (interval) clearInterval(interval)
+        handle.update()
       }
-      handle.update()
-      paint()
     }
 
     const mountQr = (trip: Trip) =>
@@ -136,20 +147,35 @@ export const InviteScreen = clientEntry(
           </p>
 
           <div class="flex flex-col items-center">
-            <div class="w-full max-w-[320px] rounded-2xl bg-white p-3 [&_svg]:block [&_svg]:h-full [&_svg]:w-full">
-              <div class="aspect-square w-full" mix={mountQr(trip)} />
-            </div>
-            {chunks.length > 1 ? (
-              <p class="mono-caption mt-3 text-ink" mix={mountFrameCounter} />
-            ) : null}
-            {chunks.length > 1 ? (
-              <p class="mono-caption mt-1 text-faint">
-                Animated code · keep it on screen while your friend scans
-              </p>
+            {qrError ? (
+              <div class="w-full rounded-2xl border border-line bg-panel px-6 py-14 text-center">
+                <p class="text-[17px] font-semibold">Couldn't build the code</p>
+                <p class="mono-caption mx-auto mt-2 max-w-sm text-muted">
+                  This browser refused to generate the QR code ({qrError}).
+                  Update it and reload the page to share this trip.
+                </p>
+              </div>
             ) : (
-              <p class="mono-caption mt-3 text-faint">
-                Keep it on screen while your friend scans
-              </p>
+              <>
+                <div class="w-full max-w-[320px] rounded-2xl bg-white p-3 [&_svg]:block [&_svg]:h-full [&_svg]:w-full">
+                  <div class="aspect-square w-full" mix={mountQr(trip)} />
+                </div>
+                {chunks.length > 1 ? (
+                  <p
+                    class="mono-caption mt-3 text-ink"
+                    mix={mountFrameCounter}
+                  />
+                ) : null}
+                {chunks.length > 1 ? (
+                  <p class="mono-caption mt-1 text-faint">
+                    Animated code · keep it on screen while your friend scans
+                  </p>
+                ) : (
+                  <p class="mono-caption mt-3 text-faint">
+                    Keep it on screen while your friend scans
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>

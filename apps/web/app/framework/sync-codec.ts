@@ -31,14 +31,14 @@ function fromBase64Url(encoded: string) {
 async function compress(text: string) {
   const stream = new Blob([new TextEncoder().encode(text)])
     .stream()
-    .pipeThrough(new CompressionStream('deflate-raw'))
+    .pipeThrough(new CompressionStream('deflate'))
   return toBase64Url(await drainStream(stream))
 }
 
 async function decompress(encoded: string) {
   const stream = new Blob([fromBase64Url(encoded) as BlobPart])
     .stream()
-    .pipeThrough(new DecompressionStream('deflate-raw'))
+    .pipeThrough(new DecompressionStream('deflate'))
   return new TextDecoder().decode(await drainStream(stream))
 }
 

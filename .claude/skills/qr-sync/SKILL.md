@@ -12,7 +12,7 @@ There is no server, so there is no sync backend. Trips move between devices **op
 **Sending** (invite screen, `app/assets/invite-screen.tsx`):
 
 ```
-trip → makeInvitePayload → JSON → compress (deflate-raw → base64url)
+trip → makeInvitePayload → JSON → compress (deflate → base64url)
      → toChunks('TRIPX1', encoded, 400) → uqr renderSVG, one frame per chunk
 ```
 
@@ -25,7 +25,7 @@ camera → canvas → qr decodeQR per frame → makeChunkCollector('TRIPX1')
 
 The layers are strictly separated:
 
-- **`app/framework/sync-codec.ts`** — generic, app-blind: `compress`/`decompress` (via `CompressionStream('deflate-raw')` + base64url) and the chunk codec. Chunks are `PREFIX:i/n:data` strings (1-based `i` of `n`); `makeChunkCollector(prefix)` accepts them **in any order**, ignores non-matching text, reports `{ received, total, payload }` progress, and yields the joined payload once all `n` arrived.
+- **`app/framework/sync-codec.ts`** — generic, app-blind: `compress`/`decompress` (via `CompressionStream('deflate')` + base64url) and the chunk codec. Chunks are `PREFIX:i/n:data` strings (1-based `i` of `n`); `makeChunkCollector(prefix)` accepts them **in any order**, ignores non-matching text, reports `{ received, total, payload }` progress, and yields the joined payload once all `n` arrived.
 - **`app/business/sync.common.ts`** — the domain: `invitePayloadSchema` (`{ kind: 'trip', trip, inviteMemberId }`), the merge, and `importTrip`.
 - **The screens** — QR rendering/scanning and the `TRIPX1` chunk prefix constant.
 
