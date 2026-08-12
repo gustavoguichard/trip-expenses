@@ -37,7 +37,7 @@ There is no local setup beyond `pnpm install` — no databases to create, no `.e
 ```
 apps/web/
   server.ts                  # Node HTTP server, entry point
-  api/index.ts               # Vercel function entry (router.fetch adapter)
+  api/index.mjs              # Vercel function entry (router.fetch adapter)
   vitest.config.ts
   app/
     routes.ts                # Route contract (route/get builders) — GET-only shells
