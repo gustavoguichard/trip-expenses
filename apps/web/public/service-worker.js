@@ -64,6 +64,42 @@ self.addEventListener('message', (event) => {
   event.waitUntil(warmRoutes(data.urls))
 })
 
+const uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+const tripSubPages = ['expenses/new', 'balances', 'charts', 'members', 'invite']
+
+function shellFallbackShapes(pathname) {
+  const match = pathname.match(new RegExp(`^/trips/(${uuid})(/.*)?$`, 'i'))
+  if (!match) return []
+  const [, tripId, rest = ''] = match
+  if (rest === '') return [new RegExp(`^/trips/${uuid}$`, 'i')]
+  if (new RegExp(`^/expenses/${uuid}$`, 'i').test(rest)) {
+    return [
+      new RegExp(`^/trips/${tripId}/expenses/new$`, 'i'),
+      new RegExp(`^/trips/${uuid}/expenses/new$`, 'i'),
+      new RegExp(`^/trips/${uuid}/expenses/${uuid}$`, 'i'),
+    ]
+  }
+  const subPage = tripSubPages.find((candidate) => rest === `/${candidate}`)
+  if (subPage) return [new RegExp(`^/trips/${uuid}/${subPage}$`, 'i')]
+  return []
+}
+
+async function sameShapeShell(cache, url) {
+  try {
+    const shapes = shellFallbackShapes(url.pathname)
+    if (shapes.length === 0) return undefined
+    const keys = await cache.keys()
+    for (const shape of shapes) {
+      const key = keys.find((candidate) => {
+        const pathname = new URL(candidate.url).pathname
+        return pathname !== url.pathname && shape.test(pathname)
+      })
+      if (key) return await cache.match(key)
+    }
+  } catch {}
+  return undefined
+}
+
 async function networkFirst(request) {
   const cache = await caches.open(cacheName)
   try {
@@ -73,6 +109,8 @@ async function networkFirst(request) {
   } catch (error) {
     const cached = await cache.match(request)
     if (cached) return cached
+    const borrowed = await sameShapeShell(cache, new URL(request.url))
+    if (borrowed) return borrowed
     const shell = await cache.match('/')
     if (shell) return shell
     throw error
