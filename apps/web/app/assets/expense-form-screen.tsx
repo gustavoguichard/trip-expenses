@@ -445,8 +445,11 @@ export const ExpenseFormScreen = clientEntry(
                             : 'text-red'
                         }`}
                       >
-                        {formatCents(customTotal, trip.currency)} of{' '}
-                        {formatCents(amountCents, trip.currency)} assigned
+                        {customTotal === amountCents
+                          ? `All ${formatCents(amountCents, trip.currency)} assigned`
+                          : customTotal < amountCents
+                            ? `${formatCents(amountCents - customTotal, trip.currency)} remaining`
+                            : `${formatCents(customTotal - amountCents, trip.currency)} over`}
                       </p>
                     ) : null}
                   </div>
