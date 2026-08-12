@@ -85,9 +85,9 @@ export const InviteScreen = clientEntry(
             paint()
           }, 800)
         }
+        stampShare(trip.id)
         await handle.update()
         paint()
-        stampShare(trip.id)
       } catch (exception) {
         if (current !== generation) return
         qrError =
