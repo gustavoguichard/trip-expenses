@@ -84,7 +84,7 @@ const tripEmojiChoices = [
 ]
 
 const inputClass =
-  'w-full rounded-lg border border-line-bright bg-panel px-3.5 py-2.5 text-[15px] text-ink placeholder:text-faint outline-none transition-colors focus:border-amber'
+  'w-full rounded-lg border border-line-bright bg-panel px-3.5 py-2.5 text-[16px] text-ink placeholder:text-faint outline-none transition-colors focus:border-amber'
 
 const buttonPrimary =
   'mono-label inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-amber px-4 py-3 text-canvas transition-opacity hover:opacity-90 disabled:cursor-default disabled:opacity-40'

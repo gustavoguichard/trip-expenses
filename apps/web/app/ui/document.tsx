@@ -18,7 +18,7 @@ export function Document(handle: Handle<DocumentProps>) {
           <meta charSet="utf-8" />
           <meta
             name="viewport"
-            content="width=device-width, initial-scale=1, viewport-fit=cover"
+            content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
           />
           <meta name="theme-color" content="#0B0A08" />
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
