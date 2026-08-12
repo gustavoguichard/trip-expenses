@@ -13,6 +13,39 @@ const serviceWorkerRegistration = `if ('serviceWorker' in navigator && location.
   })
 }`
 
+const appleStartupImages = [
+  {
+    deviceWidth: 430,
+    deviceHeight: 932,
+    pixelRatio: 3,
+    href: '/splash/1290x2796.png',
+  },
+  {
+    deviceWidth: 393,
+    deviceHeight: 852,
+    pixelRatio: 3,
+    href: '/splash/1179x2556.png',
+  },
+  {
+    deviceWidth: 390,
+    deviceHeight: 844,
+    pixelRatio: 3,
+    href: '/splash/1170x2532.png',
+  },
+  {
+    deviceWidth: 414,
+    deviceHeight: 896,
+    pixelRatio: 2,
+    href: '/splash/828x1792.png',
+  },
+  {
+    deviceWidth: 375,
+    deviceHeight: 667,
+    pixelRatio: 2,
+    href: '/splash/750x1334.png',
+  },
+]
+
 export type DocumentProps = {
   children?: RemixNode
   title?: string
@@ -39,6 +72,16 @@ export function Document(handle: Handle<DocumentProps>) {
           />
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
           <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+          {appleStartupImages.map(
+            ({ deviceWidth, deviceHeight, pixelRatio, href }) => (
+              <link
+                key={href}
+                rel="apple-touch-startup-image"
+                media={`(device-width: ${deviceWidth}px) and (device-height: ${deviceHeight}px) and (-webkit-device-pixel-ratio: ${pixelRatio}) and (orientation: portrait)`}
+                href={href}
+              />
+            )
+          )}
           <link rel="manifest" href="/manifest.webmanifest" />
           <link
             rel="preload"
