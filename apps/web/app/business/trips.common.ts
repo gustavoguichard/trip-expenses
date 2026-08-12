@@ -62,13 +62,28 @@ const updateTrip = applySchema(
   const trip = findTrip(document, tripId)
   if (!trip) throw new Error('Viagem não encontrada')
 
+  const timestamp = now()
   return {
     document: replaceTrip(document, {
       ...trip,
       name: fields.name ?? trip.name,
       emoji: fields.emoji ?? trip.emoji,
       currency: fields.currency ?? trip.currency,
-      updatedAt: now(),
+      fieldStamps: {
+        name:
+          fields.name === undefined
+            ? (trip.fieldStamps?.name ?? trip.updatedAt)
+            : timestamp,
+        emoji:
+          fields.emoji === undefined
+            ? (trip.fieldStamps?.emoji ?? trip.updatedAt)
+            : timestamp,
+        currency:
+          fields.currency === undefined
+            ? (trip.fieldStamps?.currency ?? trip.updatedAt)
+            : timestamp,
+      },
+      updatedAt: timestamp,
     }),
   }
 })

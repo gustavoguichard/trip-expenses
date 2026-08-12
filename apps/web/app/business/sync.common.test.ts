@@ -101,6 +101,7 @@ describe('mergeTrip', () => {
     const theirs = {
       ...tripOf(theirsResult.document, trip.id),
       updatedAt: later(mine.updatedAt),
+      fieldStamps: { name: later(mine.updatedAt) },
     }
 
     const merged = mergeTrip(mine, theirs)
@@ -145,6 +146,71 @@ describe('mergeTrip', () => {
 
     const merged = mergeTrip(mine, theirs)
     expect(activeExpenses(merged)).toHaveLength(0)
+  })
+
+  it('keeps a concurrent rename and currency change', async () => {
+    const { document, trip } = await seedTrip()
+    const renameStamp = later(trip.updatedAt)
+    const currencyStamp = later(renameStamp)
+
+    const renamed = await fromSuccess(updateTrip)(
+      { tripId: trip.id, name: 'Chapada dos Veadeiros' },
+      { document }
+    )
+    const renamedTrip = tripOf(renamed.document, trip.id)
+    const mine = {
+      ...renamedTrip,
+      updatedAt: renameStamp,
+      fieldStamps: { ...renamedTrip.fieldStamps, name: renameStamp },
+    }
+
+    const repriced = await fromSuccess(updateTrip)(
+      { tripId: trip.id, currency: 'USD' },
+      { document }
+    )
+    const repricedTrip = tripOf(repriced.document, trip.id)
+    const theirs = {
+      ...repricedTrip,
+      updatedAt: currencyStamp,
+      fieldStamps: { ...repricedTrip.fieldStamps, currency: currencyStamp },
+    }
+
+    for (const merged of [mergeTrip(mine, theirs), mergeTrip(theirs, mine)]) {
+      expect(merged.name).toBe('Chapada dos Veadeiros')
+      expect(merged.currency).toBe('USD')
+      expect(merged.fieldStamps?.name).toBe(renameStamp)
+      expect(merged.fieldStamps?.currency).toBe(currencyStamp)
+    }
+  })
+
+  it('falls back to updatedAt against a peer without fieldStamps', async () => {
+    const { document, trip } = await seedTrip()
+    const myStamp = later(trip.updatedAt)
+    const theirStamp = later(myStamp)
+
+    const renamed = await fromSuccess(updateTrip)(
+      { tripId: trip.id, name: 'Minha versão' },
+      { document }
+    )
+    const renamedTrip = tripOf(renamed.document, trip.id)
+    const mine = {
+      ...renamedTrip,
+      updatedAt: myStamp,
+      fieldStamps: { ...renamedTrip.fieldStamps, name: myStamp },
+    }
+
+    const legacyTheirs = {
+      ...trip,
+      name: 'Versão antiga mais nova',
+      updatedAt: theirStamp,
+    }
+
+    for (const merged of [
+      mergeTrip(mine, legacyTheirs),
+      mergeTrip(legacyTheirs, mine),
+    ]) {
+      expect(merged.name).toBe('Versão antiga mais nova')
+    }
   })
 
   it('unions device claims across copies', async () => {

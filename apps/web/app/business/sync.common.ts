@@ -80,10 +80,46 @@ function mergeById<Entity extends { id: string; updatedAt: string }>(
   return [...merged.values()]
 }
 
+type TripScalarField = 'name' | 'emoji' | 'currency'
+
+const tripScalarFields: TripScalarField[] = ['name', 'emoji', 'currency']
+
+const fieldStamp = (trip: Trip, field: TripScalarField) =>
+  trip.fieldStamps?.[field] ?? trip.updatedAt
+
+function mergeScalars(mine: Trip, theirs: Trip) {
+  const winnerOf = (field: TripScalarField) =>
+    fieldStamp(mine, field) >= fieldStamp(theirs, field) ? mine : theirs
+
+  const winners = {
+    name: winnerOf('name'),
+    emoji: winnerOf('emoji'),
+    currency: winnerOf('currency'),
+  }
+  const tracked = mine.fieldStamps || theirs.fieldStamps
+
+  return {
+    name: winners.name.name,
+    emoji: winners.emoji.emoji,
+    currency: winners.currency.currency,
+    ...(tracked
+      ? {
+          fieldStamps: Object.fromEntries(
+            tripScalarFields.map((field) => [
+              field,
+              fieldStamp(winners[field], field),
+            ])
+          ),
+        }
+      : {}),
+  }
+}
+
 function mergeTrip(mine: Trip, theirs: Trip): Trip {
   const winner = newer(mine, theirs)
   return {
     ...winner,
+    ...mergeScalars(mine, theirs),
     members: mergeMembers(mine.members, theirs.members),
     expenses: mergeExpenses(mine.expenses, theirs.expenses),
   }

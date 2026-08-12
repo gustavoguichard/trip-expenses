@@ -29,6 +29,12 @@ const expenseSchema = z.object({
   deletedAt: timestampSchema.nullable().default(null),
 })
 
+const tripFieldStampsSchema = z.object({
+  name: timestampSchema.optional(),
+  emoji: timestampSchema.optional(),
+  currency: timestampSchema.optional(),
+})
+
 const tripSchema = z.object({
   id: z.uuid(),
   name: z.string().trim().min(1).max(80),
@@ -36,6 +42,7 @@ const tripSchema = z.object({
   currency: z.string().length(3).toUpperCase(),
   members: z.array(memberSchema).default([]),
   expenses: z.array(expenseSchema).default([]),
+  fieldStamps: tripFieldStampsSchema.optional(),
   updatedAt: timestampSchema,
   deletedAt: timestampSchema.nullable().default(null),
 })
@@ -50,6 +57,7 @@ const documentContextSchema = z.object({ document: documentSchema })
 type Share = z.infer<typeof shareSchema>
 type Member = z.infer<typeof memberSchema>
 type Expense = z.infer<typeof expenseSchema>
+type TripFieldStamps = z.infer<typeof tripFieldStampsSchema>
 type Trip = z.infer<typeof tripSchema>
 type TripDocument = z.infer<typeof documentSchema>
 
@@ -93,7 +101,7 @@ function replaceTrip(document: TripDocument, trip: Trip): TripDocument {
   }
 }
 
-export type { Expense, Member, Share, Trip, TripDocument }
+export type { Expense, Member, Share, Trip, TripDocument, TripFieldStamps }
 export {
   activeExpenses,
   activeMembers,
