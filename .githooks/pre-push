@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+fail() {
+  echo "" >&2
+  echo "Push aborted: $1 failed. Fix it, or bypass with: git push --no-verify" >&2
+  exit 1
+}
+
+pnpm run lint || fail "pnpm run lint"
+pnpm run tsc || fail "pnpm run tsc"
+pnpm run test:unit || fail "pnpm run test:unit"

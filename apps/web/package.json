@@ -1,0 +1,31 @@
+{
+  "name": "@trip-expenses/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run css:build && tsc --noEmit",
+    "css:build": "tailwindcss --input ./app/ui/styles.css --output ./public/styles.css --minify",
+    "css:watch": "tailwindcss --input ./app/ui/styles.css --output ./public/styles.css --watch",
+    "dev": "NODE_ENV=development node --watch --import remix/node-tsx server.ts",
+    "start": "NODE_ENV=production node --import remix/node-tsx server.ts",
+    "test:unit": "TZ=UTC vitest run",
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "composable-functions": "5.0.0",
+    "qr": "^0.6.0",
+    "remix": "3.0.0-beta.5",
+    "uqr": "^0.1.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "@types/node": "^24.10.1",
+    "tailwindcss": "^4.1.0",
+    "typescript": "7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=24.3.0"
+  }
+}

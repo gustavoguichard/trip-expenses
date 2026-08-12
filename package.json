@@ -1,0 +1,30 @@
+{
+  "name": "trip-expenses",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev css:watch",
+    "lint": "biome check --error-on-warnings",
+    "lint-fix": "biome check --write --error-on-warnings",
+    "prepare": "git config core.hooksPath .githooks",
+    "start": "pnpm --filter @trip-expenses/web run start",
+    "test": "turbo run test:unit",
+    "test:unit": "turbo run test:unit",
+    "tsc": "turbo run tsc"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.5",
+    "turbo": "^2.10.5"
+  },
+  "engines": {
+    "node": ">=24.3.0"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "esbuild"
+    ]
+  }
+}

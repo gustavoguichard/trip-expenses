@@ -1,0 +1,9 @@
+node_modules/
+.turbo/
+.claude/worktrees/
+.env
+.env.*
+tmp/
+apps/web/public/styles.css
+.vercel/
+.DS_Store
