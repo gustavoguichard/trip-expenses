@@ -27,13 +27,15 @@ app.addEventListener('error', (event) => {
 })
 
 let warmingTimer: ReturnType<typeof setTimeout> | undefined
+let warmingDelay = 300
 
 function scheduleOfflineCacheWarming() {
   clearTimeout(warmingTimer)
   warmingTimer = setTimeout(() => {
+    warmingDelay = 2000
     warmOfflineCache(documentStore.load())
     warmScreenModules()
-  }, 2000)
+  }, warmingDelay)
 }
 
 documentStore.subscribe(scheduleOfflineCacheWarming)

@@ -1,8 +1,4 @@
-import {
-  activeExpenses,
-  activeTrips,
-  type TripDocument,
-} from '../business/store.common.ts'
+import { activeTrips, type TripDocument } from '../business/store.common.ts'
 import { routes } from '../routes.ts'
 
 const warmedUrlLimit = 200
@@ -49,11 +45,6 @@ function offlineUrls(document: TripDocument): string[] {
       routes.trips.members.href({ tripId }),
       routes.trips.invite.href({ tripId }),
     ]),
-    ...trips.flatMap((trip) =>
-      activeExpenses(trip).map((expense) =>
-        routes.trips.expense.href({ tripId: trip.id, expenseId: expense.id })
-      )
-    ),
   ]
   return urls.slice(0, warmedUrlLimit)
 }

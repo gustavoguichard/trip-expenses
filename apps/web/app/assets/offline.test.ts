@@ -22,7 +22,7 @@ describe('offlineUrls', () => {
     ])
   })
 
-  it('lists every screen of every active trip, then expense pages', async () => {
+  it('lists every screen of every active trip and no per-expense pages', async () => {
     const { document, trip, guga, ana } = await seedTrip()
     const added = await fromSuccess(addExpense)(
       {
@@ -48,26 +48,14 @@ describe('offlineUrls', () => {
       routes.trips.charts.href({ tripId }),
       routes.trips.members.href({ tripId }),
       routes.trips.invite.href({ tripId }),
-      routes.trips.expense.href({ tripId, expenseId: added.expenseId }),
     ])
   })
 
-  it('caps the list, keeping trip screens ahead of expense pages', async () => {
-    let { document, trip, guga, ana } = await seedTrip()
-    for (let index = 0; index < warmedUrlLimit; index += 1) {
-      const added = await fromSuccess(addExpense)(
-        {
-          tripId: trip.id,
-          description: `Expense ${index}`,
-          categoryId: 'food',
-          amountCents: 1000,
-          date: '2026-08-10',
-          paidBy: guga.id,
-          shares: equalShares(1000, [guga.id, ana.id]),
-        },
-        { document }
-      )
-      document = added.document
+  it('caps the list', async () => {
+    let { document, trip } = await seedTrip()
+    for (let index = 0; index < 40; index += 1) {
+      const seeded = await seedTrip(document)
+      document = seeded.document
     }
 
     const urls = offlineUrls(document)
