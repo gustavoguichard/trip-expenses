@@ -57,7 +57,7 @@ export const InviteScreen = clientEntry(
             paint()
           }, 800)
         }
-        handle.update()
+        await handle.update()
         paint()
       } catch (exception) {
         if (current !== generation) return
@@ -156,7 +156,7 @@ export const InviteScreen = clientEntry(
                 </p>
               </div>
             ) : (
-              <>
+              <div class="contents">
                 <div class="w-full max-w-[320px] rounded-2xl bg-white p-3 [&_svg]:block [&_svg]:h-full [&_svg]:w-full">
                   <div class="aspect-square w-full" mix={mountQr(trip)} />
                 </div>
@@ -175,7 +175,7 @@ export const InviteScreen = clientEntry(
                     Keep it on screen while your friend scans
                   </p>
                 )}
-              </>
+              </div>
             )}
           </div>
         </div>
