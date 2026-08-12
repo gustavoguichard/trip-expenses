@@ -16,8 +16,10 @@ import {
 } from './sync.common.ts'
 import { claimMember, updateTrip } from './trips.common.ts'
 
-const later = (iso: string) =>
-  new Date(new Date(iso).getTime() + 60_000).toISOString()
+const later = (stamp: string) => {
+  const iso = stamp.split('~')[0] ?? stamp
+  return new Date(new Date(iso).getTime() + 60_000).toISOString()
+}
 
 describe('invite payload', () => {
   it('round-trips through JSON', async () => {
@@ -210,6 +212,55 @@ describe('mergeTrip', () => {
       mergeTrip(legacyTheirs, mine),
     ]) {
       expect(merged.name).toBe('Versão antiga mais nova')
+    }
+  })
+
+  it('ranks plain ISO and hybrid stamps on one line', async () => {
+    const { document, trip, guga, ana } = await seedTrip()
+    const added = await fromSuccess(addExpense)(
+      {
+        tripId: trip.id,
+        description: 'Contested',
+        categoryId: 'food',
+        amountCents: 3000,
+        date: '2026-08-10',
+        paidBy: guga.id,
+        shares: equalShares(3000, [guga.id, ana.id]),
+      },
+      { document }
+    )
+    const base = tripOf(added.document, trip.id)
+    const version = (stamp: string, description: string) => ({
+      ...base,
+      expenses: base.expenses.map((expense) => ({
+        ...expense,
+        updatedAt: stamp,
+        description,
+      })),
+    })
+
+    const hybridEdit = version(
+      '2027-01-01T10:00:00.000Z~0000~ffff9999',
+      'Hybrid same millisecond'
+    )
+    const plainTied = version('2027-01-01T10:00:00.000Z', 'Plain tied')
+    for (const merged of [
+      mergeTrip(hybridEdit, plainTied),
+      mergeTrip(plainTied, hybridEdit),
+    ]) {
+      expect(merged.expenses[0]?.description).toBe('Hybrid same millisecond')
+    }
+
+    const plainLater = version('2027-01-01T10:00:00.001Z', 'Plain later')
+    const hybridEarlier = version(
+      '2027-01-01T10:00:00.000Z~9999~ffff9999',
+      'Hybrid earlier'
+    )
+    for (const merged of [
+      mergeTrip(plainLater, hybridEarlier),
+      mergeTrip(hybridEarlier, plainLater),
+    ]) {
+      expect(merged.expenses[0]?.description).toBe('Plain later')
     }
   })
 

@@ -2,10 +2,12 @@ import { ref } from 'remix/ui'
 import { z } from 'zod'
 
 import {
+  configureClock,
   documentSchema,
   emptyDocument,
   newId,
   now,
+  observeDocumentStamps,
   type TripDocument,
 } from '../business/store.common.ts'
 import { makeLocalStore } from '../framework/local-store.ts'
@@ -14,7 +16,9 @@ const documentStore = makeLocalStore<TripDocument>({
   key: 'trip-expenses:document',
   parse: (raw) => {
     const result = documentSchema.safeParse(raw)
-    return result.success ? result.data : null
+    if (!result.success) return null
+    observeDocumentStamps(result.data)
+    return result.data
   },
   empty: emptyDocument,
 })
@@ -46,6 +50,8 @@ function deviceId() {
   localStorage.setItem(key, id)
   return id
 }
+
+if (typeof localStorage !== 'undefined') configureClock(deviceId())
 
 type BindableHandle = {
   update(): Promise<AbortSignal>

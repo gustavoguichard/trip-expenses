@@ -3,6 +3,7 @@ import { z } from 'zod'
 import {
   type Expense,
   type Member,
+  observeStamp,
   type Trip,
   type TripDocument,
   tripSchema,
@@ -125,7 +126,17 @@ function mergeTrip(mine: Trip, theirs: Trip): Trip {
   }
 }
 
+function observeIncomingStamps(incoming: Trip) {
+  observeStamp(incoming.updatedAt)
+  for (const stamp of Object.values(incoming.fieldStamps ?? {})) {
+    observeStamp(stamp)
+  }
+  for (const member of incoming.members) observeStamp(member.updatedAt)
+  for (const expense of incoming.expenses) observeStamp(expense.updatedAt)
+}
+
 function importTrip(document: TripDocument, incoming: Trip): TripDocument {
+  observeIncomingStamps(incoming)
   const existing = document.trips.find((trip) => trip.id === incoming.id)
   if (!existing) {
     return { ...document, trips: [...document.trips, incoming] }

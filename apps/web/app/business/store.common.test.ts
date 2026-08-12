@@ -1,11 +1,102 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 
-import { documentSchema, newId, uuidFromBytes } from './store.common.ts'
+import {
+  configureClock,
+  documentSchema,
+  newId,
+  now,
+  observeStamp,
+  timestampSchema,
+  uuidFromBytes,
+} from './store.common.ts'
 
 describe('newId', () => {
   it('produces a valid uuid', () => {
     expect(z.uuid().safeParse(newId()).success).toBe(true)
+  })
+})
+
+describe('timestampSchema', () => {
+  it('accepts plain ISO stamps from old versions', () => {
+    expect(timestampSchema.safeParse('2026-08-12T10:00:00.000Z').success).toBe(
+      true
+    )
+  })
+
+  it('accepts hybrid-logical-clock stamps', () => {
+    expect(
+      timestampSchema.safeParse('2026-08-12T10:00:00.000Z~0042~ab12cd34')
+        .success
+    ).toBe(true)
+  })
+
+  it('rejects other shapes', () => {
+    expect(timestampSchema.safeParse('2026-08-12').success).toBe(false)
+    expect(timestampSchema.safeParse('yesterday').success).toBe(false)
+    expect(
+      timestampSchema.safeParse('2026-08-12T10:00:00.000Z~42').success
+    ).toBe(false)
+  })
+})
+
+describe('now', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    configureClock(newId())
+  })
+
+  it('emits hybrid stamps that parse and sort after their wall time', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-12T10:00:00.000Z'))
+    configureClock('aaaa1111-0000-0000-0000-000000000000')
+
+    const stamp = now()
+    expect(timestampSchema.safeParse(stamp).success).toBe(true)
+    expect(stamp.startsWith('2026-08-12T10:00:00.000Z~')).toBe(true)
+    expect(stamp > '2026-08-12T10:00:00.000Z').toBe(true)
+    expect(stamp < '2026-08-12T10:00:00.001Z').toBe(true)
+  })
+
+  it('stays strictly increasing while wall time stands still', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-12T10:00:00.000Z'))
+    configureClock('aaaa1111-0000-0000-0000-000000000000')
+
+    const first = now()
+    const second = now()
+    const third = now()
+    expect(second > first).toBe(true)
+    expect(third > second).toBe(true)
+  })
+
+  it('outranks observed stamps even when its wall clock runs behind', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-12T10:00:00.000Z'))
+    configureClock('aaaa1111-0000-0000-0000-000000000000')
+
+    const fromFasterDevice = '2026-08-12T12:00:00.000Z~0003~ffff9999'
+    observeStamp(fromFasterDevice)
+
+    const first = now()
+    expect(first > fromFasterDevice).toBe(true)
+    expect(first.startsWith('2026-08-12T12:00:00.000Z~')).toBe(true)
+
+    observeStamp('2026-08-12T12:00:00.000Z~0010~ffff9999')
+    const second = now()
+    expect(second > '2026-08-12T12:00:00.000Z~0010~ffff9999').toBe(true)
+    expect(second > first).toBe(true)
+  })
+
+  it('treats an observed plain ISO stamp as a clock to outrun', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-08-12T10:00:00.000Z'))
+    configureClock('aaaa1111-0000-0000-0000-000000000000')
+
+    observeStamp('2026-08-12T11:30:00.000Z')
+    const stamp = now()
+    expect(stamp > '2026-08-12T11:30:00.000Z').toBe(true)
+    expect(stamp.startsWith('2026-08-12T11:30:00.000Z~')).toBe(true)
   })
 })
 

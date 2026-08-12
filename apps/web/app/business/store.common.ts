@@ -1,6 +1,11 @@
 import { z } from 'zod'
 
-const timestampSchema = z.iso.datetime()
+const timestampSchema = z
+  .string()
+  .regex(
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z(~\d{4}~[0-9a-z]{1,8})?$/,
+    'Invalid timestamp'
+  )
 
 const shareSchema = z.object({
   memberId: z.uuid(),
@@ -77,7 +82,58 @@ const newId = () =>
     ? crypto.randomUUID()
     : uuidFromBytes(crypto.getRandomValues(new Uint8Array(16)))
 
-const now = () => new Date().toISOString()
+const stampCounterLimit = 9999
+
+let clockDevice = newId().replace(/-/g, '').slice(0, 8)
+let clockIso = ''
+let clockCounter = 0
+
+function configureClock(deviceId: string) {
+  const normalized = deviceId
+    .toLowerCase()
+    .replace(/[^0-9a-z]/g, '')
+    .slice(0, 8)
+  clockDevice = normalized || clockDevice
+  clockIso = ''
+  clockCounter = 0
+}
+
+function observeStamp(stamp: string) {
+  const [iso, counter] = stamp.split('~')
+  if (!iso) return
+  const observed = Number(counter) || 0
+  if (iso > clockIso) {
+    clockIso = iso
+    clockCounter = observed
+  } else if (iso === clockIso) {
+    clockCounter = Math.max(clockCounter, observed)
+  }
+}
+
+function observeDocumentStamps(document: TripDocument) {
+  for (const trip of document.trips) {
+    observeStamp(trip.updatedAt)
+    for (const stamp of Object.values(trip.fieldStamps ?? {})) {
+      observeStamp(stamp)
+    }
+    for (const member of trip.members) observeStamp(member.updatedAt)
+    for (const expense of trip.expenses) observeStamp(expense.updatedAt)
+  }
+}
+
+function now() {
+  const wall = new Date().toISOString()
+  if (wall > clockIso) {
+    clockIso = wall
+    clockCounter = 0
+  } else if (clockCounter < stampCounterLimit) {
+    clockCounter += 1
+  } else {
+    clockIso = new Date(new Date(clockIso).getTime() + 1).toISOString()
+    clockCounter = 0
+  }
+  return `${clockIso}~${String(clockCounter).padStart(4, '0')}~${clockDevice}`
+}
 
 const isActive = <Entity extends { deletedAt: string | null }>(
   entity: Entity
@@ -106,6 +162,7 @@ export {
   activeExpenses,
   activeMembers,
   activeTrips,
+  configureClock,
   documentContextSchema,
   documentSchema,
   emptyDocument,
@@ -115,8 +172,11 @@ export {
   memberSchema,
   newId,
   now,
+  observeDocumentStamps,
+  observeStamp,
   replaceTrip,
   shareSchema,
+  timestampSchema,
   tripSchema,
   uuidFromBytes,
 }

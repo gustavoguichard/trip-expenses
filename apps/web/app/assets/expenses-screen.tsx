@@ -115,7 +115,8 @@ export const ExpensesScreen = clientEntry(
       const me = myMember(trip, deviceId())
       const expenses = [...activeExpenses(trip)].sort(
         (a, b) =>
-          b.date.localeCompare(a.date) || b.updatedAt.localeCompare(a.updatedAt)
+          b.date.localeCompare(a.date) ||
+          (b.updatedAt > a.updatedAt ? 1 : b.updatedAt < a.updatedAt ? -1 : 0)
       )
       const days = [...new Set(expenses.map((expense) => expense.date))]
 
