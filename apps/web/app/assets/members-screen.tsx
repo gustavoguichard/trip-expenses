@@ -170,7 +170,13 @@ export const MembersScreen = clientEntry(
 
           <div class="mt-7">
             <SectionLabel>Add a person</SectionLabel>
-            <div class="flex items-center gap-2.5">
+            <form
+              class="flex items-center gap-2.5"
+              mix={on('submit', (event) => {
+                event.preventDefault()
+                add(trip)
+              })}
+            >
               <button
                 type="button"
                 aria-label="Change avatar"
@@ -191,14 +197,10 @@ export const MembersScreen = clientEntry(
                   newName = (event.currentTarget as HTMLInputElement).value
                 })}
               />
-              <button
-                type="button"
-                class={buttonGhost}
-                mix={on('click', () => add(trip))}
-              >
+              <button type="submit" class={buttonGhost}>
                 Add
               </button>
-            </div>
+            </form>
           </div>
 
           <div class="mt-4">

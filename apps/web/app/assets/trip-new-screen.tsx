@@ -105,7 +105,13 @@ export const TripNewScreen = clientEntry(
         </a>
         <h1 class="mb-6 text-[22px] font-bold tracking-tight">New trip</h1>
 
-        <div class="space-y-7">
+        <form
+          class="space-y-7"
+          mix={on('submit', (event) => {
+            event.preventDefault()
+            save()
+          })}
+        >
           <div>
             <SectionLabel>Trip name</SectionLabel>
             <div class="flex items-center gap-3">
@@ -238,14 +244,13 @@ export const TripNewScreen = clientEntry(
           <ErrorNote message={error} />
 
           <button
-            type="button"
+            type="submit"
             class={`${buttonPrimary} w-full`}
             disabled={saving}
-            mix={on('click', save)}
           >
             {saving ? 'Creating…' : 'Create trip'}
           </button>
-        </div>
+        </form>
       </div>
     )
   }

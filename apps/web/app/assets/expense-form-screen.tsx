@@ -260,7 +260,13 @@ export const ExpenseFormScreen = clientEntry(
               : 'Add expense'}
           </h1>
 
-          <div class="space-y-7">
+          <form
+            class="space-y-7"
+            mix={on('submit', (event) => {
+              event.preventDefault()
+              save(trip)
+            })}
+          >
             <div>
               <SectionLabel>What was it?</SectionLabel>
               <input
@@ -461,10 +467,9 @@ export const ExpenseFormScreen = clientEntry(
 
             <div class="space-y-3">
               <button
-                type="button"
+                type="submit"
                 class={`${buttonPrimary} w-full`}
                 disabled={saving}
-                mix={on('click', () => save(trip))}
               >
                 {saving ? 'Saving…' : editing ? 'Save changes' : 'Add expense'}
               </button>
@@ -479,7 +484,7 @@ export const ExpenseFormScreen = clientEntry(
                 </button>
               ) : null}
             </div>
-          </div>
+          </form>
         </div>
       )
     }
