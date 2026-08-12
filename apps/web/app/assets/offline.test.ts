@@ -1,10 +1,11 @@
+import { readdirSync } from 'node:fs'
 import { fromSuccess } from 'composable-functions'
 import { describe, expect, it } from 'vitest'
 import { addExpense, equalShares } from '../business/expenses.common.ts'
 import { seedTrip } from '../business/fixtures.common.ts'
 import { deleteTrip } from '../business/trips.common.ts'
 import { routes } from '../routes.ts'
-import { offlineUrls, warmedUrlLimit } from './offline.ts'
+import { offlineUrls, screenModuleUrls, warmedUrlLimit } from './offline.ts'
 
 describe('offlineUrls', () => {
   it('lists the static pages for an empty document', async () => {
@@ -72,5 +73,19 @@ describe('offlineUrls', () => {
     const urls = offlineUrls(document)
     expect(urls).toHaveLength(warmedUrlLimit)
     expect(urls).toContain(routes.trips.invite.href({ tripId: trip.id }))
+  })
+})
+
+describe('screenModuleUrls', () => {
+  it('resolves every screen module in app/assets to its served asset URL', () => {
+    const screenFiles = readdirSync(new URL('.', import.meta.url))
+      .filter((file) => file.endsWith('-screen.tsx'))
+      .sort()
+
+    expect(screenModuleUrls().sort()).toEqual(
+      screenFiles.map((file) =>
+        routes.assets.href({ path: `app/assets/${file}` })
+      )
+    )
   })
 })

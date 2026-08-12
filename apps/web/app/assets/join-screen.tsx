@@ -5,6 +5,7 @@ import { clientEntry, navigate, on, ref } from 'remix/ui'
 
 import { activeExpenses, activeMembers } from '../business/store.common.ts'
 import {
+  encodedFromLinkHash,
   type InvitePayload,
   importTrip,
   parseInvitePayload,
@@ -39,7 +40,13 @@ export const JoinScreen = clientEntry(
   import.meta.url,
   function JoinScreen(handle: Handle) {
     const data = bindDocument(handle)
-    let status: 'scanning' | 'found' | 'blocked' = 'scanning'
+    const linkEncoded =
+      typeof location === 'undefined'
+        ? null
+        : encodedFromLinkHash(location.hash)
+    let status: 'scanning' | 'opening' | 'found' | 'blocked' = linkEncoded
+      ? 'opening'
+      : 'scanning'
     let progress = ''
     let error = ''
     let payload: InvitePayload | null = null
@@ -52,6 +59,28 @@ export const JoinScreen = clientEntry(
     }
 
     handle.signal.addEventListener('abort', stopCamera)
+
+    function clearLinkHash() {
+      if (encodedFromLinkHash(location.hash) === null) return
+      history.replaceState(null, '', location.pathname + location.search)
+    }
+
+    async function openLink(encoded: string) {
+      try {
+        const parsed = parseInvitePayload(await decompress(encoded))
+        if (!parsed) throw new Error('Link não reconhecido')
+        payload = parsed
+        status = 'found'
+      } catch {
+        clearLinkHash()
+        status = 'scanning'
+        error =
+          'Esse link não abriu por aqui. Dá para escanear o código QR direto da tela do seu amigo.'
+      }
+      handle.update()
+    }
+
+    if (linkEncoded) openLink(linkEncoded)
 
     async function handleText(text: string) {
       const chunk = collector.collect(text)
@@ -134,6 +163,7 @@ export const JoinScreen = clientEntry(
           deviceId: deviceId(),
         })
       }
+      clearLinkHash()
       navigate(routes.trips.show.href({ tripId: payload.trip.id }))
     }
 
@@ -141,6 +171,17 @@ export const JoinScreen = clientEntry(
       if (!data.ready()) {
         return (
           <div mix={data.mount}>
+            <Loading />
+          </div>
+        )
+      }
+
+      if (status === 'opening') {
+        return (
+          <div mix={data.mount}>
+            <h1 class="mb-6 text-[22px] font-bold tracking-tight">
+              Abrindo o convite
+            </h1>
             <Loading />
           </div>
         )

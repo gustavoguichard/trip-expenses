@@ -1,6 +1,6 @@
 import { run } from 'remix/ui'
 
-import { warmOfflineCache } from './offline.ts'
+import { warmOfflineCache, warmScreenModules } from './offline.ts'
 import { documentStore } from './store.ts'
 
 const app = run({
@@ -30,7 +30,10 @@ let warmingTimer: ReturnType<typeof setTimeout> | undefined
 
 function scheduleOfflineCacheWarming() {
   clearTimeout(warmingTimer)
-  warmingTimer = setTimeout(() => warmOfflineCache(documentStore.load()), 2000)
+  warmingTimer = setTimeout(() => {
+    warmOfflineCache(documentStore.load())
+    warmScreenModules()
+  }, 2000)
 }
 
 documentStore.subscribe(scheduleOfflineCacheWarming)

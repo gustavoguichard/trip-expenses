@@ -32,6 +32,18 @@ function parseInvitePayload(raw: string) {
   }
 }
 
+const inviteLinkHashPrefix = '#s='
+
+function inviteLinkHash(encoded: string) {
+  return `${inviteLinkHashPrefix}${encoded}`
+}
+
+function encodedFromLinkHash(hash: string) {
+  return hash.startsWith(inviteLinkHashPrefix)
+    ? hash.slice(inviteLinkHashPrefix.length)
+    : null
+}
+
 const newer = <Entity extends { updatedAt: string }>(a: Entity, b: Entity) =>
   a.updatedAt >= b.updatedAt ? a : b
 
@@ -84,7 +96,9 @@ function importTrip(document: TripDocument, incoming: Trip): TripDocument {
 
 export type { InvitePayload }
 export {
+  encodedFromLinkHash,
   importTrip,
+  inviteLinkHash,
   invitePayloadSchema,
   makeInvitePayload,
   mergeTrip,

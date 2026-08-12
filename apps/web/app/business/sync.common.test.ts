@@ -1,11 +1,14 @@
 import { fromSuccess } from 'composable-functions'
 import { describe, expect, it } from 'vitest'
 
+import { compress, decompress } from '../framework/sync-codec.ts'
 import { addExpense, deleteExpense, equalShares } from './expenses.common.ts'
 import { seedTrip, tripOf } from './fixtures.common.ts'
 import { activeExpenses, activeMembers, emptyDocument } from './store.common.ts'
 import {
+  encodedFromLinkHash,
   importTrip,
+  inviteLinkHash,
   makeInvitePayload,
   mergeTrip,
   parseInvitePayload,
@@ -28,6 +31,35 @@ describe('invite payload', () => {
   it('rejects garbage', () => {
     expect(parseInvitePayload('not json')).toBeNull()
     expect(parseInvitePayload('{"kind":"other"}')).toBeNull()
+  })
+})
+
+describe('invite link fragment', () => {
+  it('round-trips the encoded payload through the hash', () => {
+    expect(encodedFromLinkHash(inviteLinkHash('abc-123_XYZ'))).toBe(
+      'abc-123_XYZ'
+    )
+  })
+
+  it('rejects hashes that do not carry a payload', () => {
+    expect(encodedFromLinkHash('')).toBeNull()
+    expect(encodedFromLinkHash('#other=abc')).toBeNull()
+    expect(encodedFromLinkHash('s=abc')).toBeNull()
+  })
+
+  it('carries a full trip from link to payload', async () => {
+    const { trip, ana } = await seedTrip()
+    const encoded = await compress(
+      JSON.stringify(makeInvitePayload(trip, ana.id))
+    )
+    const hash = inviteLinkHash(encoded)
+
+    const carried = encodedFromLinkHash(hash)
+    expect(carried).not.toBeNull()
+    const parsed = parseInvitePayload(await decompress(carried ?? ''))
+
+    expect(parsed?.trip.id).toBe(trip.id)
+    expect(parsed?.inviteMemberId).toBe(ana.id)
   })
 })
 

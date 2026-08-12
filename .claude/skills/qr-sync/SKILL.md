@@ -44,6 +44,12 @@ A trip rarely fits one QR code. `toChunks` splits the compressed payload into 40
 
 Regeneration is racy by nature (the payload re-compresses when the invite member changes): the invite screen guards with a generation counter so a stale async compress can't paint over a newer one.
 
+## Link transport
+
+The same compressed payload also travels as a URL: `https://<origin>/join#s=<payload>`, where `<payload>` is the deflate+base64url output of `compress` — a **single payload with no chunk framing and no `TRIPX1` prefix**. It rides the URL **fragment**, which browsers never send to the server, so the app stays databaseless. `inviteLinkHash`/`encodedFromLinkHash` in `sync.common.ts` own the `#s=` format.
+
+The invite screen offers "Compartilhar link" next to the QR: `navigator.share({ url })` where available, clipboard + "Link copiado" otherwise, and warns when the payload exceeds ~6000 characters (messengers may truncate very long links; QR stays the reliable path for big trips). The join screen reads `location.hash` on mount: a payload there skips the camera entirely and feeds decompress → `parseInvitePayload` → the same preview + import + claim flow; the hash is cleared via `history.replaceState` after import. A corrupt fragment clears the hash, shows the standard error note, and falls back to the camera.
+
 ## The merge: entity-level last-write-wins
 
 `mergeTrip(mine, theirs)` in `sync.common.ts`:

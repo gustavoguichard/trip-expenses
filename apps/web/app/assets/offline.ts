@@ -7,6 +7,34 @@ import { routes } from '../routes.ts'
 
 const warmedUrlLimit = 200
 
+const screenModuleFiles = [
+  'balances-screen.tsx',
+  'charts-screen.tsx',
+  'expense-form-screen.tsx',
+  'expenses-screen.tsx',
+  'invite-screen.tsx',
+  'join-screen.tsx',
+  'members-screen.tsx',
+  'trip-new-screen.tsx',
+  'trips-screen.tsx',
+]
+
+function screenModuleUrls(): string[] {
+  return screenModuleFiles.map((file) =>
+    routes.assets.href({ path: `app/assets/${file}` })
+  )
+}
+
+let screenModulesWarmed = false
+
+async function warmScreenModules() {
+  if (screenModulesWarmed || !navigator.serviceWorker?.controller) return
+  screenModulesWarmed = true
+  for (const url of screenModuleUrls()) {
+    await import(url).catch(() => {})
+  }
+}
+
 function offlineUrls(document: TripDocument): string[] {
   const trips = activeTrips(document)
   const urls = [
@@ -36,4 +64,10 @@ function warmOfflineCache(document: TripDocument) {
   controller.postMessage({ type: 'warm-routes', urls: offlineUrls(document) })
 }
 
-export { offlineUrls, warmedUrlLimit, warmOfflineCache }
+export {
+  offlineUrls,
+  screenModuleUrls,
+  warmedUrlLimit,
+  warmOfflineCache,
+  warmScreenModules,
+}

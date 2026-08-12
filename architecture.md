@@ -37,6 +37,7 @@ Screens (`app/assets/*-screen.tsx`, all `clientEntry`): trips list, trip-new, ex
 - `app/business/sync.common.ts`: `makeInvitePayload(trip, inviteMemberId|null)` / `parseInvitePayload`, `mergeTrip` (newer `updatedAt` wins per entity; members union `deviceIds`; expenses union by id), `importTrip` (add or merge into the document).
 - Invite screen: payload → compress → chunks → `uqr` `renderSVG`, cycling frames every 400ms when chunked; member picker decides who the scanner becomes (self = second own device; none = data-only share).
 - Join screen: `getUserMedia` → canvas → `qr/decode.js` (`decodeQR`) per frame → collector → decompress → preview card → import + claim (claims only when the device has no member on that trip yet). Camera-denied state degrades to instructions.
+- Link transport: the same compressed payload rides `https://<origin>/join#s=<payload>` — single payload, no chunk framing, no `TRIPX1` prefix; the fragment never reaches the server. Invite screen shares it via `navigator.share` (clipboard + "Link copiado" fallback) and warns past ~6000 chars; join screen reads `location.hash` on mount, skips the camera, and reuses the same preview/import/claim flow, clearing the hash with `history.replaceState` after import (corrupt fragments fall back to the camera).
 - Both QR libraries are pure ESM — a hard requirement, since the Remix asset server refuses CommonJS modules.
 
 ## Styling

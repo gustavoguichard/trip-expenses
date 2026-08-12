@@ -3,14 +3,16 @@ import { clientEntry, on, ref } from 'remix/ui'
 import { renderSVG } from 'uqr'
 
 import { activeMembers, findTrip, type Trip } from '../business/store.common.ts'
-import { makeInvitePayload } from '../business/sync.common.ts'
+import { inviteLinkHash, makeInvitePayload } from '../business/sync.common.ts'
 import { myMember } from '../business/trips.common.ts'
 import { compress, toChunks } from '../framework/sync-codec.ts'
+import { routes } from '../routes.ts'
 import { bindDocument, deviceId } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
-import { Avatar, SectionLabel } from './widgets.tsx'
+import { Avatar, buttonPrimary, SectionLabel } from './widgets.tsx'
 
 const chunkPrefix = 'TRIPX1'
+const longLinkThreshold = 6000
 
 export const InviteScreen = clientEntry(
   import.meta.url,
@@ -18,16 +20,37 @@ export const InviteScreen = clientEntry(
     const data = bindDocument(handle)
     let inviteMemberId: string | null = null
     let chunks: string[] = []
+    let linkEncoded = ''
+    let copied = false
     let qrError = ''
     let frame = 0
     let generation = 0
     let qrNode: HTMLElement | null = null
     let frameCounterNode: HTMLElement | null = null
     let interval: ReturnType<typeof setInterval> | null = null
+    let copiedTimer: ReturnType<typeof setTimeout> | null = null
 
     handle.signal.addEventListener('abort', () => {
       if (interval) clearInterval(interval)
+      if (copiedTimer) clearTimeout(copiedTimer)
     })
+
+    async function shareLink() {
+      if (!linkEncoded) return
+      const url = `${location.origin}${routes.join.href()}${inviteLinkHash(linkEncoded)}`
+      if (typeof navigator.share === 'function') {
+        await navigator.share({ url }).catch(() => {})
+        return
+      }
+      await navigator.clipboard.writeText(url)
+      copied = true
+      handle.update()
+      if (copiedTimer) clearTimeout(copiedTimer)
+      copiedTimer = setTimeout(() => {
+        copied = false
+        handle.update()
+      }, 2500)
+    }
 
     const frameLabel = () =>
       `quadro ${(frame % chunks.length) + 1}/${chunks.length}`
@@ -48,6 +71,7 @@ export const InviteScreen = clientEntry(
         const encoded = await compress(payload)
         if (current !== generation) return
         qrError = ''
+        linkEncoded = encoded
         chunks = toChunks(chunkPrefix, encoded, 700)
         frame = 0
         if (interval) clearInterval(interval)
@@ -64,6 +88,7 @@ export const InviteScreen = clientEntry(
         qrError =
           exception instanceof Error ? exception.message : String(exception)
         chunks = []
+        linkEncoded = ''
         if (interval) clearInterval(interval)
         handle.update()
       }
@@ -178,6 +203,25 @@ export const InviteScreen = clientEntry(
                     Deixe na tela enquanto seu amigo escaneia
                   </p>
                 )}
+                <button
+                  type="button"
+                  class={`${buttonPrimary} mt-5 w-full max-w-[320px]`}
+                  disabled={!linkEncoded}
+                  mix={on('click', shareLink)}
+                >
+                  {copied ? 'Link copiado' : 'Compartilhar link'}
+                </button>
+                <p class="mono-caption mt-2 max-w-[320px] text-center text-faint">
+                  O link abre esta viagem direto no aparelho do seu amigo, sem
+                  câmera.
+                </p>
+                {linkEncoded.length > longLinkThreshold ? (
+                  <p class="mono-caption mt-2 max-w-[320px] text-center text-faint">
+                    Esta viagem cresceu e o link ficou longo — alguns apps de
+                    mensagem cortam links assim. Se não abrir, o código QR é o
+                    caminho garantido.
+                  </p>
+                ) : null}
               </div>
             )}
           </div>
