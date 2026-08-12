@@ -121,7 +121,7 @@ export const InviteScreen = clientEntry(
                 key={member.id}
                 type="button"
                 aria-pressed={inviteMemberId === member.id}
-                class={`flex cursor-pointer items-center gap-2 rounded-full border py-1.5 pr-3.5 pl-1.5 transition-colors ${
+                class={`flex cursor-pointer items-center gap-2 rounded-full border py-2 pr-3.5 pl-2 transition-colors ${
                   inviteMemberId === member.id
                     ? 'border-amber bg-amber-wash text-ink'
                     : 'border-line-bright text-muted hover:border-amber/60'

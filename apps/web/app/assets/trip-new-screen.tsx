@@ -6,6 +6,7 @@ import { claimMember, createTrip } from '../business/trips.common.ts'
 import { routes } from '../routes.ts'
 import { deviceId, mutateDocument } from './store.ts'
 import {
+  BottomBar,
   buttonGhost,
   buttonPrimary,
   EmojiPicker,
@@ -217,7 +218,7 @@ export const TripNewScreen = clientEntry(
                     <button
                       type="button"
                       aria-label="Remover pessoa"
-                      class="mono-label cursor-pointer px-2 py-2 text-faint transition-colors hover:text-red"
+                      class="mono-label flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center text-faint transition-colors hover:text-red"
                       mix={on('click', () => {
                         members = members.filter((_, i) => i !== index)
                         handle.update()
@@ -248,13 +249,15 @@ export const TripNewScreen = clientEntry(
 
           <ErrorNote message={error} />
 
-          <button
-            type="submit"
-            class={`${buttonPrimary} w-full`}
-            disabled={saving}
-          >
-            {saving ? 'Criando…' : 'Criar viagem'}
-          </button>
+          <BottomBar>
+            <button
+              type="submit"
+              class={`${buttonPrimary} flex-1`}
+              disabled={saving}
+            >
+              {saving ? 'Criando…' : 'Criar viagem'}
+            </button>
+          </BottomBar>
         </form>
       </div>
     )

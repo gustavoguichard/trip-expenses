@@ -136,7 +136,7 @@ export const MembersScreen = clientEntry(
                   {member.id === me?.id ? null : (
                     <button
                       type="button"
-                      class="mono-label cursor-pointer rounded-lg border border-line-bright px-3 py-2 text-muted transition-colors hover:border-amber hover:text-ink"
+                      class="mono-label cursor-pointer rounded-lg border border-line-bright px-3 py-3 text-muted transition-colors hover:border-amber hover:text-ink"
                       mix={on('click', () =>
                         run(
                           mutateDocument(claimMember, {
@@ -153,7 +153,7 @@ export const MembersScreen = clientEntry(
                   <button
                     type="button"
                     aria-label={`Remover ${member.name}`}
-                    class="mono-label cursor-pointer px-2 py-2 text-faint transition-colors hover:text-red"
+                    class="mono-label flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center text-faint transition-colors hover:text-red"
                     mix={on('click', () =>
                       run(
                         mutateDocument(removeMember, {

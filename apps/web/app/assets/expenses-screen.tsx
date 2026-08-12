@@ -13,7 +13,7 @@ import { routes } from '../routes.ts'
 import { formatCents, formatDay } from './money.ts'
 import { bindDocument, deviceId } from './store.ts'
 import { Loading, TripChrome, TripMissing } from './trip-chrome.tsx'
-import { buttonPrimary } from './widgets.tsx'
+import { BottomBar, buttonPrimary } from './widgets.tsx'
 
 function memberName(trip: Trip, memberId: string) {
   return trip.members.find((member) => member.id === memberId)?.name ?? 'Alguém'
@@ -167,14 +167,14 @@ export const ExpensesScreen = clientEntry(
             </div>
           )}
 
-          <div class="pointer-events-none fixed inset-x-0 bottom-6 z-30 flex justify-center px-4">
+          <BottomBar>
             <a
               href={routes.trips.newExpense.href({ tripId: trip.id })}
-              class={`${buttonPrimary} pointer-events-auto shadow-[0_12px_32px_rgba(0,0,0,0.55)]`}
+              class={`${buttonPrimary} flex-1`}
             >
               + Adicionar despesa
             </a>
-          </div>
+          </BottomBar>
         </div>
       )
     }

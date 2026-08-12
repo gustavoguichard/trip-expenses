@@ -26,6 +26,7 @@ import { bindDocument, deviceId, mutateDocument } from './store.ts'
 import { Loading, TripMissing } from './trip-chrome.tsx'
 import {
   Avatar,
+  BottomBar,
   buttonDanger,
   buttonPrimary,
   EmojiPicker,
@@ -58,7 +59,7 @@ function MemberChip(
       <button
         type="button"
         aria-pressed={selected}
-        class={`flex cursor-pointer items-center gap-2 rounded-full border py-1.5 pr-3.5 pl-1.5 transition-colors ${
+        class={`flex cursor-pointer items-center gap-2 rounded-full border py-2 pr-3.5 pl-2 transition-colors ${
           selected
             ? 'border-amber bg-amber-wash text-ink'
             : 'border-line-bright text-muted hover:border-amber/60'
@@ -354,7 +355,7 @@ export const ExpenseFormScreen = clientEntry(
                       <button
                         key={mode}
                         type="button"
-                        class={`mono-label cursor-pointer rounded-md px-3 py-1.5 transition-colors ${
+                        class={`mono-label cursor-pointer rounded-md px-3 py-2 transition-colors ${
                           state.splitMode === mode
                             ? 'bg-raised text-amber'
                             : 'text-faint hover:text-ink'
@@ -460,10 +461,20 @@ export const ExpenseFormScreen = clientEntry(
 
             <ErrorNote message={error} />
 
-            <div class="space-y-3">
+            <BottomBar>
+              {editing ? (
+                <button
+                  type="button"
+                  class={`${buttonDanger} flex-1`}
+                  disabled={saving}
+                  mix={on('click', () => remove(trip))}
+                >
+                  Excluir
+                </button>
+              ) : null}
               <button
                 type="submit"
-                class={`${buttonPrimary} w-full`}
+                class={`${buttonPrimary} flex-2`}
                 disabled={saving}
               >
                 {saving
@@ -472,17 +483,7 @@ export const ExpenseFormScreen = clientEntry(
                     ? 'Salvar alterações'
                     : 'Adicionar despesa'}
               </button>
-              {editing ? (
-                <button
-                  type="button"
-                  class={`${buttonDanger} w-full`}
-                  disabled={saving}
-                  mix={on('click', () => remove(trip))}
-                >
-                  Excluir {settlement ? 'pagamento' : 'despesa'}
-                </button>
-              ) : null}
-            </div>
+            </BottomBar>
           </form>
         </div>
       )

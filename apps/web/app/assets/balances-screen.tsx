@@ -155,7 +155,7 @@ export const BalancesScreen = clientEntry(
                     </span>
                     <button
                       type="button"
-                      class="mono-label cursor-pointer rounded-lg border border-green/40 px-3 py-2 text-green transition-colors hover:bg-green-wash disabled:opacity-40"
+                      class="mono-label cursor-pointer rounded-lg border border-green/40 px-3 py-3 text-green transition-colors hover:bg-green-wash disabled:opacity-40"
                       disabled={settling === `${transfer.from}:${transfer.to}`}
                       mix={on('click', () =>
                         settle(

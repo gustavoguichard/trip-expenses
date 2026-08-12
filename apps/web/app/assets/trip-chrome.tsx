@@ -76,7 +76,7 @@ function TripChrome(handle: Handle<{ trip: Trip; active: TabKey }>) {
               key={tab.key}
               href={tabHref(tab.key, trip.id)}
               aria-current={tab.key === active ? 'page' : undefined}
-              class={`mono-label rounded-lg py-2.5 text-center transition-colors ${
+              class={`mono-label rounded-lg py-3 text-center transition-colors ${
                 tab.key === active
                   ? 'bg-raised text-amber'
                   : 'text-muted hover:text-ink'
