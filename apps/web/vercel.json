@@ -2,5 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm run css:build",
   "outputDirectory": "public",
+  "functions": {
+    "api/index.mjs": {
+      "includeFiles": "{app/**,public/**,tsconfig.json,package.json,../../node_modules/.pnpm/{remix@,@remix-run+,zod@,qr@,uqr@,composable-functions@,oxc-,@oxc-,lightningcss,@emnapi+}*/**}"
+    }
+  },
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }

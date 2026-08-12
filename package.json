@@ -7,7 +7,7 @@
     "dev": "turbo run dev css:watch",
     "lint": "biome check --error-on-warnings",
     "lint-fix": "biome check --write --error-on-warnings",
-    "prepare": "git config core.hooksPath .githooks",
+    "prepare": "git config core.hooksPath .githooks || true",
     "start": "pnpm --filter @trip-expenses/web run start",
     "test": "turbo run test:unit",
     "test:unit": "turbo run test:unit",

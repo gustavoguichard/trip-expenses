@@ -7,3 +7,4 @@ tmp/
 apps/web/public/styles.css
 .vercel/
 .DS_Store
+.vercel
