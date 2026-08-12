@@ -13,7 +13,7 @@ export function AppShell(handle: Handle<AppShellProps>) {
   return () => (
     <Document title={handle.props.title}>
       <div class="flex min-h-dvh flex-col">
-        <header class="sticky top-0 z-40 border-b border-line bg-chrome/90 backdrop-blur">
+        <header class="sticky top-0 z-40 border-b border-line bg-chrome/90 pt-[env(safe-area-inset-top)] backdrop-blur">
           <div class="mx-auto flex h-13 w-full max-w-3xl items-center justify-between px-4">
             <a
               href={routes.home.href()}
