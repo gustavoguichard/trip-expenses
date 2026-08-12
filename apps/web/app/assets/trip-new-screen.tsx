@@ -59,7 +59,7 @@ export const TripNewScreen = clientEntry(
     let error = ''
     let saving = false
 
-    const shuffle = ref(() => {
+    const randomizeTripEmoji = ref(() => {
       tripEmoji = randomOf(tripEmojiChoices)
       handle.update()
     })
@@ -107,7 +107,7 @@ export const TripNewScreen = clientEntry(
     }
 
     return () => (
-      <div mix={shuffle}>
+      <div mix={randomizeTripEmoji}>
         <a
           href={routes.home.href()}
           class="mono-label mb-5 inline-flex items-center gap-1.5 text-faint transition-colors hover:text-ink"
@@ -126,9 +126,15 @@ export const TripNewScreen = clientEntry(
           <div>
             <SectionLabel>Nome da viagem</SectionLabel>
             <div class="flex items-center gap-3">
-              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line-bright bg-panel text-[20px]">
-                {tripEmoji}
-              </span>
+              <EmojiPicker
+                value={tripEmoji}
+                options={tripEmojiChoices}
+                label="Escolher o emoji da viagem"
+                onPick={(emoji) => {
+                  tripEmoji = emoji
+                  handle.update()
+                }}
+              />
               <input
                 class={inputClass}
                 name="tripName"
@@ -137,16 +143,6 @@ export const TripNewScreen = clientEntry(
                 mix={on('input', (event) => {
                   name = (event.currentTarget as HTMLInputElement).value
                 })}
-              />
-            </div>
-            <div class="mt-3">
-              <EmojiPicker
-                value={tripEmoji}
-                choices={tripEmojiChoices}
-                onPick={(emoji) => {
-                  tripEmoji = emoji
-                  handle.update()
-                }}
               />
             </div>
           </div>
@@ -188,20 +184,16 @@ export const TripNewScreen = clientEntry(
             <div class="space-y-2.5">
               {members.map((member, index) => (
                 <div key={member.key} class="flex items-center gap-2.5">
-                  <button
-                    type="button"
-                    aria-label="Trocar avatar"
-                    class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line-bright bg-panel text-[18px] transition-colors hover:border-amber"
-                    mix={on('click', () => {
-                      members[index] = {
-                        ...member,
-                        emoji: randomOf(emojiChoices),
-                      }
+                  <EmojiPicker
+                    value={member.emoji}
+                    options={emojiChoices}
+                    label={`Trocar o avatar de ${member.name || 'quem vai'}`}
+                    shape="circle"
+                    onPick={(emoji) => {
+                      members[index] = { ...member, emoji }
                       handle.update()
-                    })}
-                  >
-                    {member.emoji}
-                  </button>
+                    }}
+                  />
                   <input
                     class={inputClass}
                     name={`member-${member.key}`}
@@ -238,7 +230,7 @@ export const TripNewScreen = clientEntry(
               ))}
             </div>
             <p class="mono-caption mt-2 text-faint">
-              A primeira pessoa é você. Toque no avatar para trocar.
+              A primeira pessoa é você. Toque no avatar para escolher outro.
             </p>
             <button
               type="button"

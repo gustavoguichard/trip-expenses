@@ -28,6 +28,7 @@ import {
   Avatar,
   buttonDanger,
   buttonPrimary,
+  EmojiPicker,
   ErrorNote,
   inputClass,
   SectionLabel,
@@ -269,39 +270,33 @@ export const ExpenseFormScreen = clientEntry(
           >
             <div>
               <SectionLabel>O que foi?</SectionLabel>
-              <input
-                class={inputClass}
-                placeholder="Jantar na beira do rio"
-                defaultValue={state.description}
-                mix={on('input', (event) => {
-                  state.description = (
-                    event.currentTarget as HTMLInputElement
-                  ).value
-                })}
-              />
-              {settlement ? null : (
-                <div class="mt-3 flex flex-wrap gap-1.5">
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      type="button"
-                      aria-pressed={category.id === state.categoryId}
-                      class={`mono-caption flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 transition-colors ${
-                        category.id === state.categoryId
-                          ? 'border-amber bg-amber-wash text-ink'
-                          : 'border-line-bright text-muted hover:border-amber/60'
-                      }`}
-                      mix={on('click', () => {
-                        state.categoryId = category.id
-                        handle.update()
-                      })}
-                    >
-                      <span>{category.emoji}</span>
-                      {category.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div class="flex items-center gap-3">
+                {settlement ? null : (
+                  <EmojiPicker
+                    value={state.categoryId}
+                    options={categories.map((category) => ({
+                      value: category.id,
+                      emoji: category.emoji,
+                      label: category.label,
+                    }))}
+                    label="Escolher a categoria"
+                    onPick={(categoryId) => {
+                      state.categoryId = categoryId
+                      handle.update()
+                    }}
+                  />
+                )}
+                <input
+                  class={inputClass}
+                  placeholder="Jantar na beira do rio"
+                  defaultValue={state.description}
+                  mix={on('input', (event) => {
+                    state.description = (
+                      event.currentTarget as HTMLInputElement
+                    ).value
+                  })}
+                />
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">

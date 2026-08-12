@@ -57,7 +57,7 @@ The shared constants and widgets live in `app/assets/widgets.tsx` — use them, 
 - **`Avatar`** — people are **emoji avatars**: a rounded-full `bg-raised border-line-bright` plate holding the member's emoji (`sm`/`md`/`lg`). Trips get square plates (`rounded-2xl`) with the trip emoji. Never initials, never images.
 - **`SectionLabel`** — `mono-label text-faint`, the heading for every form section and list group.
 - **`ErrorNote`** — `mono-caption` in a `border-red/40 bg-red-wash` pill; render mutation error messages through it, nothing custom.
-- **`EmojiPicker`** — selection state is `border-amber bg-amber-wash` with `aria-pressed`; the same selected-chip pattern applies to any pick-one row (member chips on the invite screen).
+- **`EmojiPicker`** — an emoji tile button (`h-11 w-11`, square for trips/categories, `shape="circle"` for people) that opens an anchored popover (`remix/ui/popover`): a 6-column emoji grid, or emoji+label rows when options carry labels (the category picker). Selection state is `border-amber bg-amber-wash` with `aria-pressed`; the same selected-chip pattern applies to any pick-one row (member chips on the invite screen).
 
 **Lists** are hairline-separated rows inside one panel, not card grids. **Empty states** are a panel with generous padding (`px-6 py-14 text-center`), an emoji or short headline, a `mono-caption text-muted` explanation, and at most one action. **Loading** is pulsing panel-shaped skeletons (`animate-pulse rounded-2xl bg-panel`) — every screen renders the skeleton until `bindDocument` reports ready, identically on server and first client render.
 

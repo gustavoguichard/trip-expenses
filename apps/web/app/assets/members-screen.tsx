@@ -19,6 +19,7 @@ import {
   buttonDanger,
   buttonGhost,
   buttonPrimary,
+  EmojiPicker,
   ErrorNote,
   emojiChoices,
   inputClass,
@@ -178,17 +179,16 @@ export const MembersScreen = clientEntry(
                 add(trip)
               })}
             >
-              <button
-                type="button"
-                aria-label="Trocar avatar"
-                class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line-bright bg-panel text-[18px] transition-colors hover:border-amber"
-                mix={on('click', () => {
-                  newEmoji = randomOf(emojiChoices)
+              <EmojiPicker
+                value={newEmoji}
+                options={emojiChoices}
+                label="Escolher o avatar"
+                shape="circle"
+                onPick={(emoji) => {
+                  newEmoji = emoji
                   handle.update()
-                })}
-              >
-                {newEmoji}
-              </button>
+                }}
+              />
               <input
                 key={`add-${addRound}`}
                 class={inputClass}
