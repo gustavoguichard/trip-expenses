@@ -231,11 +231,11 @@ function EmojiPicker(
 function BottomBar(handle: Handle<{ children: RemixNode }>) {
   return () => (
     <div>
-      <div aria-hidden="true" class="h-10" />
-      <div class="pointer-events-none fixed inset-x-0 bottom-0 z-30">
-        <div class="h-8 bg-linear-to-t from-canvas to-transparent" />
-        <div class="pointer-events-auto border-t border-line bg-chrome/90 backdrop-blur">
-          <div class="mx-auto flex w-full max-w-3xl gap-3 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div aria-hidden="true" class="h-10 sm:hidden" />
+      <div class="pointer-events-none fixed inset-x-0 bottom-0 z-30 sm:static">
+        <div class="h-8 bg-linear-to-t from-canvas to-transparent sm:hidden" />
+        <div class="pointer-events-auto border-t border-line bg-chrome/90 backdrop-blur sm:border-t-0 sm:bg-transparent sm:backdrop-blur-none">
+          <div class="mx-auto flex w-full max-w-3xl gap-3 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-0 sm:pt-4 sm:pb-0">
             {handle.props.children}
           </div>
         </div>

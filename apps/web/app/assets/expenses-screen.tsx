@@ -167,14 +167,24 @@ export const ExpensesScreen = clientEntry(
             </div>
           )}
 
-          <BottomBar>
+          <div class="sm:hidden">
+            <BottomBar>
+              <a
+                href={routes.trips.newExpense.href({ tripId: trip.id })}
+                class={`${buttonPrimary} flex-1`}
+              >
+                + Adicionar despesa
+              </a>
+            </BottomBar>
+          </div>
+          <div class="pointer-events-none fixed inset-x-0 bottom-6 z-30 hidden justify-center px-4 sm:flex">
             <a
               href={routes.trips.newExpense.href({ tripId: trip.id })}
-              class={`${buttonPrimary} flex-1`}
+              class={`${buttonPrimary} pointer-events-auto shadow-[0_12px_32px_rgba(0,0,0,0.55)]`}
             >
               + Adicionar despesa
             </a>
-          </BottomBar>
+          </div>
         </div>
       )
     }
